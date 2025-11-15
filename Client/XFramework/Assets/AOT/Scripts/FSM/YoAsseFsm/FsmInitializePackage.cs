@@ -25,7 +25,7 @@ internal class FsmInitializePackage : IStateNode
     void IStateNode.OnExit()
     {
     }
-
+    private static string _targetPath = "Bundles/Android/DefaultPackage/Simulate";
     private IEnumerator InitPackage()
     {
         var playMode = (EPlayMode)_machine.GetBlackboardValue("PlayMode");
@@ -40,11 +40,18 @@ internal class FsmInitializePackage : IStateNode
         InitializationOperation initializationOperation = null;
         if (playMode == EPlayMode.EditorSimulateMode)
         {
-            var buildResult = EditorSimulateModeHelper.SimulateBuild(packageName);
-            var packageRoot = buildResult.PackageRootDirectory;
+           //  var buildResult = EditorSimulateModeHelper.SimulateBuild(packageName);
+           //  //var packageRoot = buildResult.PackageRootDirectory;
+           //  var createParameters = new EditorSimulateModeParameters();
+           //  createParameters.EditorFileSystemParameters = FileSystemParameters.CreateDefaultEditorFileSystemParameters(packageRoot);
+           //initializationOperation= package.InitializeAsync(createParameters);
+           
+            string projectRoot = Path.GetDirectoryName(Application.dataPath);
+            string fullTargetPath = Path.Combine(projectRoot, _targetPath);
+            var packageRoot =fullTargetPath; //安卓平台
             var createParameters = new EditorSimulateModeParameters();
             createParameters.EditorFileSystemParameters = FileSystemParameters.CreateDefaultEditorFileSystemParameters(packageRoot);
-            initializationOperation = package.InitializeAsync(createParameters);
+            initializationOperation= package.InitializeAsync(createParameters);
         }
 
         // 单机运行模式

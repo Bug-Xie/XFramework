@@ -304,7 +304,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   yooAssetConfig:
-    playMode: 2
+    playMode: 0
     packageName: DefaultPackage
     HostServerURL: http://127.0.0.1:8084/XFramework/Android
 --- !u!1660057539 &9223372036854775807
