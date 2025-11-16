@@ -25,11 +25,10 @@ internal class FsmInitializePackage : IStateNode
     void IStateNode.OnExit()
     {
     }
-    private static string _targetPath = "Bundles/Android/DefaultPackage/Simulate";
     private IEnumerator InitPackage()
     {
-        var playMode = (EPlayMode)_machine.GetBlackboardValue("PlayMode");
-        var packageName = (string)_machine.GetBlackboardValue("PackageName");
+        var playMode = ((YooAssetConfig)_machine.GetBlackboardValue("yooAssetConfig")).playMode;
+        var packageName = ((YooAssetConfig)_machine.GetBlackboardValue("yooAssetConfig")).packageName;
 
         // 创建资源包裹类
         var package = YooAssets.TryGetPackage(packageName);
@@ -40,18 +39,19 @@ internal class FsmInitializePackage : IStateNode
         InitializationOperation initializationOperation = null;
         if (playMode == EPlayMode.EditorSimulateMode)
         {
-           //  var buildResult = EditorSimulateModeHelper.SimulateBuild(packageName);
-           //  //var packageRoot = buildResult.PackageRootDirectory;
-           //  var createParameters = new EditorSimulateModeParameters();
-           //  createParameters.EditorFileSystemParameters = FileSystemParameters.CreateDefaultEditorFileSystemParameters(packageRoot);
-           //initializationOperation= package.InitializeAsync(createParameters);
-           
-            string projectRoot = Path.GetDirectoryName(Application.dataPath);
-            string fullTargetPath = Path.Combine(projectRoot, _targetPath);
-            var packageRoot =fullTargetPath; //安卓平台
+            //模拟生成资源清单
+            var buildResult = EditorSimulateModeHelper.SimulateBuild(packageName);
+            var packageRoot = buildResult.PackageRootDirectory;
             var createParameters = new EditorSimulateModeParameters();
-            createParameters.EditorFileSystemParameters = FileSystemParameters.CreateDefaultEditorFileSystemParameters(packageRoot);
-            initializationOperation= package.InitializeAsync(createParameters);
+             createParameters.EditorFileSystemParameters = FileSystemParameters.CreateDefaultEditorFileSystemParameters(packageRoot);
+           initializationOperation= package.InitializeAsync(createParameters);
+           //需要写editor生成资源清单  加快编辑器模式运行
+            // string projectRoot = Path.GetDirectoryName(Application.dataPath);
+            // string fullTargetPath = Path.Combine(projectRoot, _targetPath);
+            // var packageRoot =fullTargetPath; //安卓平台
+            // var createParameters = new EditorSimulateModeParameters();
+            // createParameters.EditorFileSystemParameters = FileSystemParameters.CreateDefaultEditorFileSystemParameters(packageRoot);
+            // initializationOperation= package.InitializeAsync(createParameters);
         }
 
         // 单机运行模式
@@ -65,12 +65,14 @@ internal class FsmInitializePackage : IStateNode
         // 联机运行模式
         if (playMode == EPlayMode.HostPlayMode)
         {
-            string defaultHostServer = (string)_machine.GetBlackboardValue("HostServerURL");
-            string fallbackHostServer =(string)_machine.GetBlackboardValue("HostServerURL");
+            string defaultHostServer = ((YooAssetConfig)_machine.GetBlackboardValue("yooAssetConfig")).HostServerURL;
+            string fallbackHostServer =((YooAssetConfig)_machine.GetBlackboardValue("yooAssetConfig")).HostServerURL;
             IRemoteServices remoteServices = new RemoteServices(defaultHostServer, fallbackHostServer);
             var createParameters = new HostPlayModeParameters();
+            //编辑器下找不到版本和mainfest
             //createParameters.BuildinFileSystemParameters = FileSystemParameters.CreateDefaultBuildinFileSystemParameters();
             createParameters.BuildinFileSystemParameters = null;
+            
             createParameters.CacheFileSystemParameters = FileSystemParameters.CreateDefaultCacheFileSystemParameters(remoteServices);
             initializationOperation = package.InitializeAsync(createParameters);
         }
@@ -80,8 +82,8 @@ internal class FsmInitializePackage : IStateNode
         {
 #if UNITY_WEBGL && WEIXINMINIGAME && !UNITY_EDITOR
             var createParameters = new WebPlayModeParameters();
-			string defaultHostServer =(string)_machine.GetBlackboardValue("HostServerURL");
-            string fallbackHostServer = (string)_machine.GetBlackboardValue("HostServerURL");
+			string defaultHostServer =((YooAssetConfig)_machine.GetBlackboardValue("yooAssetConfig")).HostServerURL;
+            string fallbackHostServer = ((YooAssetConfig)_machine.GetBlackboardValue("yooAssetConfig")).HostServerURL;
             string packageRoot = $"{WeChatWASM.WX.env.USER_DATA_PATH}/__GAME_FILE_CACHE"; //注意：如果有子目录，请修改此处！
             IRemoteServices remoteServices = new RemoteServices(defaultHostServer, fallbackHostServer);
             createParameters.WebServerFileSystemParameters = WechatFileSystemCreater.CreateFileSystemParameters(packageRoot, remoteServices);

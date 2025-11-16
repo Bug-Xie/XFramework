@@ -26,7 +26,7 @@ public class FsmCreateDownloader : IStateNode
 
     void CreateDownloader()
     {
-        var packageName = (string)_machine.GetBlackboardValue("PackageName");
+        var packageName = ((YooAssetConfig)_machine.GetBlackboardValue("yooAssetConfig")).packageName;
         var package = YooAssets.GetPackage(packageName);
         int downloadingMaxNum = 10;
         int failedTryAgain = 3;
@@ -36,7 +36,7 @@ public class FsmCreateDownloader : IStateNode
         if (downloader.TotalDownloadCount == 0)
         {
             Debug.Log("Not found any download files !");
-            _machine.ChangeState<FsmStartGame>();
+            _machine.ChangeState<FSMYooAssetFinish>();
         }
         else
         {

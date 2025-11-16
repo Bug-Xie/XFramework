@@ -17,7 +17,7 @@ public class PatchOperation : GameAsyncOperation
     private readonly string _packageName;
     private ESteps _steps = ESteps.None;
 
-    public PatchOperation(MonoBehaviour Behaviour,YooAssetConfig yooAssetConfig)
+    public PatchOperation(MonoBehaviour Behaviour,YooAssetConfig yooAssetConfig,HybridCLRConfig hybridClrConfig)
     {
         _packageName = yooAssetConfig.packageName;
 
@@ -37,13 +37,12 @@ public class PatchOperation : GameAsyncOperation
         _machine.AddNode<FsmDownloadPackageFiles>();
         _machine.AddNode<FsmDownloadPackageOver>();
         _machine.AddNode<FsmClearCacheBundle>();
-        _machine.AddNode<FsmStartGame>();
-
-        _machine.SetBlackboardValue("PackageName", yooAssetConfig.packageName);
-        _machine.SetBlackboardValue("PlayMode", yooAssetConfig.playMode);
-        _machine.SetBlackboardValue("HostServerURL", yooAssetConfig.HostServerURL);
+        _machine.AddNode<FSMYooAssetFinish>();
+        _machine.AddNode<FSMHyBridCLRLoadAndStart>();
+        
+        _machine.SetBlackboardValue("yooAssetConfig", yooAssetConfig);
+        _machine.SetBlackboardValue("hybridClrConfig", hybridClrConfig);
         _machine.SetBlackboardValue("Behaviour",Behaviour);
-      
     }
     protected override void OnStart()
     {
@@ -69,7 +68,6 @@ public class PatchOperation : GameAsyncOperation
         _steps = ESteps.Done;
         _eventGroup.RemoveAllListener();
         Status = EOperationStatus.Succeed;
-        Debug.Log($"Package {_packageName} patch done !");
     }
 
     /// <summary>

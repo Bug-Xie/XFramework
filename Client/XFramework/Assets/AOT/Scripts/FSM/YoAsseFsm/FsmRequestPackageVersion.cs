@@ -26,7 +26,7 @@ internal class FsmRequestPackageVersion : IStateNode
 
     private IEnumerator UpdatePackageVersion()
     {
-        var packageName = (string)_machine.GetBlackboardValue("PackageName");
+        var packageName =  ((YooAssetConfig)_machine.GetBlackboardValue("yooAssetConfig")).packageName;
         var package = YooAssets.GetPackage(packageName);
         var operation = package.RequestPackageVersionAsync();
         yield return operation;

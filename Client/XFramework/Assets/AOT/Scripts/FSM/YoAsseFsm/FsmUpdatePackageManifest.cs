@@ -26,7 +26,7 @@ public class FsmUpdatePackageManifest : IStateNode
 
     private IEnumerator UpdateManifest()
     {
-        var packageName = (string)_machine.GetBlackboardValue("PackageName");
+        var packageName = ((YooAssetConfig)_machine.GetBlackboardValue("yooAssetConfig")).packageName;
         var packageVersion = (string)_machine.GetBlackboardValue("PackageVersion");
         var package = YooAssets.GetPackage(packageName);
         var operation = package.UpdatePackageManifestAsync(packageVersion);

@@ -304,9 +304,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   yooAssetConfig:
-    playMode: 0
+    playMode: 2
     packageName: DefaultPackage
-    HostServerURL: http://127.0.0.1:8084/XFramework/Android
+    HostServerURL: http://192.168.1.167:8084/XFramework/Android
+  hybridCLRConfig:
+    hotScriptDllPath: Assets/Jit/PakageAsset/ScriptDLL
+    hotScriptDllName: HotUpdate.dll
+    mainScriptName: GameManager
+    mainScriptMethod: GameStart
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

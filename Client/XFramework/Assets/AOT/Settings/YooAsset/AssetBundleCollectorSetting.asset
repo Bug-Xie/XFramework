@@ -43,8 +43,8 @@ MonoBehaviour:
       AssetTags: 
       ActiveRuleName: EnableGroup
       Collectors:
-      - CollectPath: 
-        CollectorGUID: 
+      - CollectPath: Assets/Jit/PakageAsset/ScriptDLL
+        CollectorGUID: e8da46675b705d84da51868833e16c56
         CollectorType: 0
         AddressRuleName: AddressByFileName
         PackRuleName: PackDirectory
