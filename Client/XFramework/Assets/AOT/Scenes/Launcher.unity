@@ -312,6 +312,7 @@ MonoBehaviour:
     hotScriptDllName: HotUpdate.dll
     mainScriptName: GameManager
     mainScriptMethod: GameStart
+  AOTGlobalConfig: {fileID: 11400000, guid: 4d4de6e6d74539d4bbde13c24f2817f8, type: 2}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

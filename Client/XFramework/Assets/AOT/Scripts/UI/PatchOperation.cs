@@ -17,9 +17,9 @@ public class PatchOperation : GameAsyncOperation
     private readonly string _packageName;
     private ESteps _steps = ESteps.None;
 
-    public PatchOperation(MonoBehaviour Behaviour,YooAssetConfig yooAssetConfig,HybridCLRConfig hybridClrConfig)
+    public PatchOperation(MonoBehaviour Behaviour,AOTGlobalConfig AOTGlobalConfig)
     {
-        _packageName = yooAssetConfig.packageName;
+        _packageName = AOTGlobalConfig.aotGlobalYooAssetConfig.packageName;
 
         // 注册监听事件
         _eventGroup.AddListener<UserEventDefine.UserTryInitialize>(OnHandleEventMessage);
@@ -40,8 +40,7 @@ public class PatchOperation : GameAsyncOperation
         _machine.AddNode<FSMYooAssetFinish>();
         _machine.AddNode<FSMHyBridCLRLoadAndStart>();
         
-        _machine.SetBlackboardValue("yooAssetConfig", yooAssetConfig);
-        _machine.SetBlackboardValue("hybridClrConfig", hybridClrConfig);
+        _machine.SetBlackboardValue("AOTGlobalConfig", AOTGlobalConfig);
         _machine.SetBlackboardValue("Behaviour",Behaviour);
     }
     protected override void OnStart()

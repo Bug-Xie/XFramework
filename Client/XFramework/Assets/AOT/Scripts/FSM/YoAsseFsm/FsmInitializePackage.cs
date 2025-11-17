@@ -27,8 +27,8 @@ internal class FsmInitializePackage : IStateNode
     }
     private IEnumerator InitPackage()
     {
-        var playMode = ((YooAssetConfig)_machine.GetBlackboardValue("yooAssetConfig")).playMode;
-        var packageName = ((YooAssetConfig)_machine.GetBlackboardValue("yooAssetConfig")).packageName;
+        var playMode = ((AOTGlobalConfig)_machine.GetBlackboardValue("AOTGlobalConfig")).aotGlobalYooAssetConfig.playMode;
+        var packageName = ((AOTGlobalConfig)_machine.GetBlackboardValue("AOTGlobalConfig")).aotGlobalYooAssetConfig.packageName;
 
         // 创建资源包裹类
         var package = YooAssets.TryGetPackage(packageName);
@@ -65,8 +65,8 @@ internal class FsmInitializePackage : IStateNode
         // 联机运行模式
         if (playMode == EPlayMode.HostPlayMode)
         {
-            string defaultHostServer = ((YooAssetConfig)_machine.GetBlackboardValue("yooAssetConfig")).HostServerURL;
-            string fallbackHostServer =((YooAssetConfig)_machine.GetBlackboardValue("yooAssetConfig")).HostServerURL;
+            string defaultHostServer = ((AOTGlobalConfig)_machine.GetBlackboardValue("AOTGlobalConfig")).aotGlobalYooAssetConfig.hostServerURL;
+            string fallbackHostServer =((AOTGlobalConfig)_machine.GetBlackboardValue("AOTGlobalConfig")).aotGlobalYooAssetConfig.hostServerURL;
             IRemoteServices remoteServices = new RemoteServices(defaultHostServer, fallbackHostServer);
             var createParameters = new HostPlayModeParameters();
             //编辑器下找不到版本和mainfest
@@ -82,8 +82,8 @@ internal class FsmInitializePackage : IStateNode
         {
 #if UNITY_WEBGL && WEIXINMINIGAME && !UNITY_EDITOR
             var createParameters = new WebPlayModeParameters();
-			string defaultHostServer =((YooAssetConfig)_machine.GetBlackboardValue("yooAssetConfig")).HostServerURL;
-            string fallbackHostServer = ((YooAssetConfig)_machine.GetBlackboardValue("yooAssetConfig")).HostServerURL;
+			string defaultHostServer =((AOTGlobalConfig)_machine.GetBlackboardValue("AOTGlobalConfig")).aotGlobalYooAssetConfig.hostServerURL;;
+            string fallbackHostServer = ((AOTGlobalConfig)_machine.GetBlackboardValue("AOTGlobalConfig")).aotGlobalYooAssetConfig.hostServerURL;;
             string packageRoot = $"{WeChatWASM.WX.env.USER_DATA_PATH}/__GAME_FILE_CACHE"; //注意：如果有子目录，请修改此处！
             IRemoteServices remoteServices = new RemoteServices(defaultHostServer, fallbackHostServer);
             createParameters.WebServerFileSystemParameters = WechatFileSystemCreater.CreateFileSystemParameters(packageRoot, remoteServices);

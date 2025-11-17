@@ -11,11 +11,12 @@ using YooAsset;
 internal class FSMHyBridCLRLoadAndStart : IStateNode
 {
     private StateMachine _machine;
+
     // 配置常量
-    private string hotScriptDllPath ;
-    private  string mainScriptName ;
-    private  string mainScriptMethod ;
-    private  string hotScriptDllName ;
+    private string hotScriptDllPath;
+    private string mainScriptName;
+    private string mainScriptMethod;
+    private string hotScriptDllName;
 
     private Assembly hotUpdateAssembly = null;
 
@@ -52,11 +53,16 @@ internal class FSMHyBridCLRLoadAndStart : IStateNode
 
     void IStateNode.OnEnter()
     {
-        hotScriptDllPath=((HybridCLRConfig)_machine.GetBlackboardValue("hybridClrConfig")).hotScriptDllPath;
-        mainScriptName=((HybridCLRConfig)_machine.GetBlackboardValue("hybridClrConfig")).mainScriptName;
-        mainScriptMethod=((HybridCLRConfig)_machine.GetBlackboardValue("hybridClrConfig")).mainScriptMethod;
-        hotScriptDllName=((HybridCLRConfig)_machine.GetBlackboardValue("hybridClrConfig")).hotScriptDllName;
-       _owner.SetFinish();
+        hotScriptDllPath = ((AOTGlobalConfig)_machine.GetBlackboardValue("AOTGlobalConfig")).aotGlobalHybridClrConfig
+            .hotScriptDllPath;
+        mainScriptName = ((AOTGlobalConfig)_machine.GetBlackboardValue("AOTGlobalConfig")).aotGlobalHybridClrConfig
+            .mainScriptName;
+        mainScriptMethod = ((AOTGlobalConfig)_machine.GetBlackboardValue("AOTGlobalConfig")).aotGlobalHybridClrConfig
+            .mainScriptMethod;
+        hotScriptDllName = ((AOTGlobalConfig)_machine.GetBlackboardValue("AOTGlobalConfig")).aotGlobalHybridClrConfig
+            .hotScriptDllName;
+        ((MonoBehaviour)_machine.GetBlackboardValue("Behaviour")).StartCoroutine(HyBridCLRUpdate());
+        _owner.SetFinish();
     }
 
     IEnumerator HyBridCLRUpdate()
@@ -76,13 +82,16 @@ internal class FSMHyBridCLRLoadAndStart : IStateNode
     IEnumerator LoadAOT()
     {
 #if UNITY_EDITOR
+          yield return null;
+#else
         //加载AOT
         List<byte[]> AOTAssetDatas = new List<byte[]>();
         foreach (var name in AOTMetaAssemblyFiles)
         {
             string dllPath = $"{hotScriptDllPath}/{name}";
             Debug.Log($"开始加载热更新AOT程序集: {name}, 路径: {dllPath}");
-            var package = YooAssets.GetPackage(((YooAssetConfig)_machine.GetBlackboardValue("yooAssetConfig")).packageName);
+            var package = YooAssets.GetPackage(((AOTGlobalConfig)_machine.GetBlackboardValue("AOTGlobalConfig"))
+                .aotGlobalYooAssetConfig.packageName);
             var handle = package.LoadAssetAsync<TextAsset>(dllPath);
             yield return handle;
             if (handle.Status == EOperationStatus.Succeed)
@@ -117,15 +126,12 @@ internal class FSMHyBridCLRLoadAndStart : IStateNode
             LoadImageErrorCode err = RuntimeApi.LoadMetadataForAOTAssembly(dllBytes, mode);
             Debug.Log($"LoadMetadataForAOTAssembly:{dllBytes}. mode:{mode} ret:{err}");
         }
-#else
-        yield return null;
 #endif
     }
 
     //-------------------------------------加载热更dll------------------------------------------
     public IEnumerator LoadHotUpdate()
     {
-        string dllPath = $"{hotScriptDllPath}/{hotScriptDllName}";
 #if UNITY_EDITOR
         // 编辑器模式：直接从当前域中获取程序集
         Assembly assembly = AppDomain.CurrentDomain.GetAssemblies()
@@ -142,7 +148,9 @@ internal class FSMHyBridCLRLoadAndStart : IStateNode
         yield return null;
 #else
         // 非编辑器模式：使用YooAsset加载资源
-        var package = YooAssets.GetPackage(((YooAssetConfig)_machine.GetBlackboardValue("yooAssetConfig")).packageName);
+        string dllPath = $"{hotScriptDllPath}/{hotScriptDllName}";
+        var package = YooAssets.GetPackage(((AOTGlobalConfig)_machine.GetBlackboardValue("AOTGlobalConfig"))
+            .aotGlobalYooAssetConfig.packageName);
         var handle = package.LoadAssetAsync<TextAsset>(dllPath);
         yield return handle;
         if (handle.Status == EOperationStatus.Succeed)
@@ -167,6 +175,7 @@ internal class FSMHyBridCLRLoadAndStart : IStateNode
         handle.Release();
 #endif
     }
+
     //-------------------------------------进入主入口------------------------------------------
     private IEnumerator Main()
     {

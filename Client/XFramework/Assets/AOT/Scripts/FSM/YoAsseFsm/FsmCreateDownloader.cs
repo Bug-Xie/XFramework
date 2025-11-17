@@ -26,7 +26,7 @@ public class FsmCreateDownloader : IStateNode
 
     void CreateDownloader()
     {
-        var packageName = ((YooAssetConfig)_machine.GetBlackboardValue("yooAssetConfig")).packageName;
+        var packageName = ((AOTGlobalConfig)_machine.GetBlackboardValue("AOTGlobalConfig")).aotGlobalYooAssetConfig.packageName;
         var package = YooAssets.GetPackage(packageName);
         int downloadingMaxNum = 10;
         int failedTryAgain = 3;
