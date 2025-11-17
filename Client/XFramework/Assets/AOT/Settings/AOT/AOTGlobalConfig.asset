@@ -19,5 +19,9 @@ MonoBehaviour:
   aotGlobalHybridClrConfig:
     hotScriptDllPath: Assets/Jit/PakageAsset/ScriptDLL
     hotScriptDllName: HotUpdate.dll
+    AOTScriptDllNames:
+    - System.Core.dll
+    - System.dll
+    - mscorlib.dll
     mainScriptName: HotUpdateMain
     mainScriptMethod: Start

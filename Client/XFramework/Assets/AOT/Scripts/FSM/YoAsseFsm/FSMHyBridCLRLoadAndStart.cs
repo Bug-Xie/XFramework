@@ -19,30 +19,6 @@ internal class FSMHyBridCLRLoadAndStart : IStateNode
     private string hotScriptDllName;
 
     private Assembly hotUpdateAssembly = null;
-
-    private static List<string> AOTMetaAssemblyFiles { get; } = new List<string>()
-    {
-#if UNITY_ANDROID || UNITY_EDITOR
-        "System.Core.dll",
-        "System.dll",
-        "mscorlib.dll",
-#endif
-#if UNITY_IOS
-            "DOTween.dll",
-            "Google.Protobuf.dll",
-            "Luban.Runtime.dll",
-            "Newtonsoft.Json.dll",
-            "System.Core.dll",
-            "System.dll",
-            "UniTask.dll",
-            "Unity.Collections.dll",
-            "UnityEngine.CoreModule.dll",
-            "mscorlib.dll",
-            "spine-unity.dll",
-
-#endif
-    };
-
     private PatchOperation _owner;
 
     void IStateNode.OnCreate(StateMachine machine)
@@ -86,7 +62,7 @@ internal class FSMHyBridCLRLoadAndStart : IStateNode
 #else
         //加载AOT
         List<byte[]> AOTAssetDatas = new List<byte[]>();
-        foreach (var name in AOTMetaAssemblyFiles)
+        foreach (var name in  ((AOTGlobalConfig)_machine.GetBlackboardValue("AOTGlobalConfig")).aotGlobalHybridClrConfig.AOTScriptDllNames)
         {
             string dllPath = $"{hotScriptDllPath}/{name}";
             Debug.Log($"开始加载热更新AOT程序集: {name}, 路径: {dllPath}");

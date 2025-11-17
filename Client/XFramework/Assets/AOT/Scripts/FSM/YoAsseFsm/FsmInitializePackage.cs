@@ -4,6 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UniFramework.Machine;
+using UnityEditor;
 using YooAsset;
 
 internal class FsmInitializePackage : IStateNode
