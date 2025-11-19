@@ -12,14 +12,11 @@ internal class FSMHyBridCLRLoadAndStart : IStateNode
 {
     private StateMachine _machine;
 
-    // 配置常量
-    private string hotScriptDllPath;
-    private string mainScriptName;
-    private string mainScriptMethod;
-    private string hotScriptDllName;
-
-    private Assembly hotUpdateAssembly = null;
+    private Assembly hotUpdateAssembly ;
     private PatchOperation _owner;
+    
+    private List<AssetHandle> _aotHandles ;
+    private List<AssetHandle> _jitHandles ;
 
     void IStateNode.OnCreate(StateMachine machine)
     {
@@ -29,28 +26,23 @@ internal class FSMHyBridCLRLoadAndStart : IStateNode
 
     void IStateNode.OnEnter()
     {
-        hotScriptDllPath = ((AOTGlobalConfig)_machine.GetBlackboardValue("AOTGlobalConfig")).aotGlobalHybridClrConfig
-            .hotScriptDllPath;
-        mainScriptName = ((AOTGlobalConfig)_machine.GetBlackboardValue("AOTGlobalConfig")).aotGlobalHybridClrConfig
-            .mainScriptName;
-        mainScriptMethod = ((AOTGlobalConfig)_machine.GetBlackboardValue("AOTGlobalConfig")).aotGlobalHybridClrConfig
-            .mainScriptMethod;
-        hotScriptDllName = ((AOTGlobalConfig)_machine.GetBlackboardValue("AOTGlobalConfig")).aotGlobalHybridClrConfig
-            .hotScriptDllName;
         ((MonoBehaviour)_machine.GetBlackboardValue("Behaviour")).StartCoroutine(HyBridCLRUpdate());
-        _owner.SetFinish();
     }
 
     IEnumerator HyBridCLRUpdate()
     {
-        //加载AOT元数据
+        // 加载AOT元数据
         yield return LoadAOT();
 
-        //加载热更dll
-        yield return LoadHotUpdate();
+        // 加载热更dll
+        yield return LoadJITDLL();
+        
         Debug.Log("HybridCLR更新完成");
-        //进入主入口
+
+        // 进入主入口
         yield return Main();
+        
+        // 所有操作完成后设置完成状态
         _owner.SetFinish();
     }
 
@@ -58,116 +50,144 @@ internal class FSMHyBridCLRLoadAndStart : IStateNode
     IEnumerator LoadAOT()
     {
 #if UNITY_EDITOR
-          yield return null;
+        // 编辑器模式下跳过AOT元数据加载
+        Debug.Log("编辑器模式跳过AOT元数据加载");
+        yield return null;
 #else
-        //加载AOT
-        List<byte[]> AOTAssetDatas = new List<byte[]>();
-        foreach (var name in  ((AOTGlobalConfig)_machine.GetBlackboardValue("AOTGlobalConfig")).aotGlobalHybridClrConfig.AOTScriptDllNames)
+        var package = YooAssets.GetPackage(AOTGlobalConstants.DEFAULT_PACKAGE_NAME);
+        var locations = package.GetAssetInfos("AOTDLL");
+        Debug.Log($"开始加载 {locations.Length} 个AOT DLL文件");
+
+        foreach (var location in locations)
         {
-            string dllPath = $"{hotScriptDllPath}/{name}";
-            Debug.Log($"开始加载热更新AOT程序集: {name}, 路径: {dllPath}");
-            var package = YooAssets.GetPackage(((AOTGlobalConfig)_machine.GetBlackboardValue("AOTGlobalConfig"))
-                .aotGlobalYooAssetConfig.packageName);
-            var handle = package.LoadAssetAsync<TextAsset>(dllPath);
+            var handle = package.LoadAssetAsync<TextAsset>(location.Address);
+            _aotHandles.Add(handle);
             yield return handle;
+            
             if (handle.Status == EOperationStatus.Succeed)
             {
-                TextAsset dllAsset = handle.GetAssetObject<TextAsset>();
-                if (dllAsset != null)
+                TextAsset dllFile = handle.AssetObject as TextAsset;
+                HomologousImageMode mode = HomologousImageMode.SuperSet;
+                LoadImageErrorCode err = RuntimeApi.LoadMetadataForAOTAssembly(dllFile.bytes, mode);
+                
+                if (err == LoadImageErrorCode.OK)
                 {
-                    Debug.Log($"{name}AOTDLL加载成功, 字节长度: {dllAsset.bytes.Length}");
-                    AOTAssetDatas.Add(dllAsset.bytes);
+                    Debug.Log($"成功加载并注册AOT元数据: {location.Address}, mode: {mode}");
                 }
                 else
                 {
-                    Debug.LogError($"AOTDLL加载成功但AssetObject为空: {dllPath}");
+                    Debug.LogError($"注册AOT元数据失败: {location.Address}, 错误码: {err}");
                 }
             }
             else
             {
-                Debug.LogError($"AOTDLL加载失败: {dllPath}, 错误: {handle.LastError}");
+                Debug.LogError($"加载AOT DLL失败: {location.Address}");
             }
-
-            // 释放资源句柄
-            handle.Release();
         }
-
-        //补充元数据
-        /// 注意，补充元数据是给AOT dll补充元数据，而不是给热更新dll补充元数据。
-        /// 热更新dll不缺元数据，不需要补充，如果调用LoadMetadataForAOTAssembly会返回错误
-        HomologousImageMode mode = HomologousImageMode.SuperSet;
-        foreach (var dllBytes in AOTAssetDatas)
-        {
-            // 加载assembly对应的dll，会自动为它hook。一旦aot泛型函数的native函数不存在，用解释器版本代码
-            LoadImageErrorCode err = RuntimeApi.LoadMetadataForAOTAssembly(dllBytes, mode);
-            Debug.Log($"LoadMetadataForAOTAssembly:{dllBytes}. mode:{mode} ret:{err}");
-        }
+        
+        Debug.Log($"AOT元数据加载完成，共 {_aotHandles.Count} 个文件");
 #endif
     }
 
     //-------------------------------------加载热更dll------------------------------------------
-    public IEnumerator LoadHotUpdate()
+    public IEnumerator LoadJITDLL()
     {
 #if UNITY_EDITOR
         // 编辑器模式：直接从当前域中获取程序集
         Assembly assembly = AppDomain.CurrentDomain.GetAssemblies()
-            .FirstOrDefault(a => $"{a.GetName().Name}.dll" == hotScriptDllName);
+            .FirstOrDefault(a => $"{a.GetName().Name}.dll" == AOTGlobalConstants.HOT_UPDATE_ASSEMBLY_NAME);
         if (assembly != null)
         {
             hotUpdateAssembly = assembly;
-            Debug.Log($"编辑器模式HotUpdateDLL加载成功: {hotScriptDllName}");
+            Debug.Log($"编辑器模式HotUpdateDLL加载成功: {AOTGlobalConstants.HOT_UPDATE_ASSEMBLY_NAME}");
         }
         else
         {
-            Debug.LogError($"编辑器模式找不到HotUpdateDLL: {hotScriptDllName}");
+            Debug.LogWarning($"编辑器模式找不到HotUpdateDLL: {AOTGlobalConstants.HOT_UPDATE_ASSEMBLY_NAME}");
+            yield return null;
         }
-        yield return null;
 #else
         // 非编辑器模式：使用YooAsset加载资源
-        string dllPath = $"{hotScriptDllPath}/{hotScriptDllName}";
-        var package = YooAssets.GetPackage(((AOTGlobalConfig)_machine.GetBlackboardValue("AOTGlobalConfig"))
-            .aotGlobalYooAssetConfig.packageName);
-        var handle = package.LoadAssetAsync<TextAsset>(dllPath);
-        yield return handle;
-        if (handle.Status == EOperationStatus.Succeed)
+        var package = YooAssets.GetPackage(AOTGlobalConstants.DEFAULT_PACKAGE_NAME);
+        var locations = package.GetAssetInfos("JITDLL");
+        Debug.Log($"开始加载 {locations.Length} 个JITDLL文件");
+
+        foreach (var location in locations)
         {
-            TextAsset dllAsset = handle.GetAssetObject<TextAsset>();
-            if (dllAsset != null)
+            var handle = package.LoadAssetAsync<TextAsset>(location.Address);
+            _jitHandles.Add(handle);
+            yield return handle;
+            
+            if (handle.Status == EOperationStatus.Succeed)
             {
-                Debug.Log($"{hotScriptDllName}HotUpdateDLL加载成功, 字节长度: {dllAsset.bytes.Length}");
-                hotUpdateAssembly = Assembly.Load(dllAsset.bytes);
+                TextAsset dllFile = handle.AssetObject as TextAsset;
+                try
+                {
+                    Assembly loadedAssembly = Assembly.Load(dllFile.bytes);
+                    
+                    if (location.Address.Contains(AOTGlobalConstants.HOT_UPDATE_ASSEMBLY_NAME))
+                    {
+                        hotUpdateAssembly = loadedAssembly;
+                        Debug.Log($"设置主热更程序集: {location.Address}");
+                    }
+                    
+                    Debug.Log($"成功加载JIT DLL: {location.Address}");
+                }
+                catch (Exception e)
+                {
+                    Debug.LogError($"加载程序集失败: {location.Address}, 错误: {e.Message}");
+                }
             }
             else
             {
-                Debug.LogError($"HotUpdateDLL加载成功但AssetObject为空: {dllPath}");
+                Debug.LogError($"加载JIT DLL资源失败: {location.Address}");
             }
         }
-        else
-        {
-            Debug.LogError($"HotUpdateDLL加载失败: {dllPath}, 错误: {handle.LastError}");
-        }
-
-        // 释放资源句柄
-        handle.Release();
+        
+        Debug.Log($"JIT DLL加载完成，共 {_jitHandles.Count} 个文件");
 #endif
     }
 
     //-------------------------------------进入主入口------------------------------------------
     private IEnumerator Main()
     {
-        // 加载程序集
-        Type type = hotUpdateAssembly.GetType(mainScriptName);
-        // 获取并调用启动方法
-        MethodInfo method = type.GetMethod(mainScriptMethod);
-        // 调用方法（假设返回IEnumerator，用协程执行）
-        if (method.ReturnType == typeof(IEnumerator))
+        if (hotUpdateAssembly == null)
         {
-            IEnumerator invokeCoroutine = (IEnumerator)method.Invoke(null, null);
-            yield return ((MonoBehaviour)_machine.GetBlackboardValue("Behaviour")).StartCoroutine(invokeCoroutine);
+            Debug.LogError("热更程序集未加载，无法进入主入口");
+            yield break;
         }
-        else
+
+        try
         {
-            method.Invoke(null, null);
+            Type type = hotUpdateAssembly.GetType(AOTGlobalConstants.DEFAULT_MAIN_CLASS);
+            if (type == null)
+            {
+                Debug.LogError($"找不到主脚本类型: {AOTGlobalConstants.DEFAULT_MAIN_CLASS}");
+                yield break;
+            }
+
+            MethodInfo method = type.GetMethod(AOTGlobalConstants.DEFAULT_MAIN_METHOD, BindingFlags.Public | BindingFlags.Static);
+            if (method == null)
+            {
+                Debug.LogError($"找不到主方法: {AOTGlobalConstants.DEFAULT_MAIN_METHOD} 在类型 {AOTGlobalConstants.DEFAULT_MAIN_CLASS} 中");
+                yield break;
+            }
+
+            Debug.Log($"调用热更入口: {AOTGlobalConstants.DEFAULT_MAIN_CLASS}.{AOTGlobalConstants.DEFAULT_MAIN_METHOD}");
+
+            if (method.ReturnType == typeof(IEnumerator))
+            {
+                IEnumerator invokeCoroutine = (IEnumerator)method.Invoke(null, null); 
+                ((MonoBehaviour)_machine.GetBlackboardValue("Behaviour")).StartCoroutine(invokeCoroutine);
+            }
+            else
+            {
+                method.Invoke(null, null);
+            }
+        }
+        catch (Exception e)
+        {
+            Debug.LogError($"执行热更入口失败: {e}");
         }
     }
 
@@ -177,5 +197,22 @@ internal class FSMHyBridCLRLoadAndStart : IStateNode
 
     void IStateNode.OnExit()
     {
+        // 在状态退出时释放所有资源句柄
+        foreach (var handle in _aotHandles)
+        {
+            if (handle.IsValid)
+                handle.Release();
+        }
+        
+        foreach (var handle in _jitHandles)
+        {
+            if (handle.IsValid)
+                handle.Release();
+        }
+        
+        _aotHandles.Clear();
+        _jitHandles.Clear();
+        
+        Debug.Log("FSMHyBridCLRLoadAndStart 状态退出，资源已释放");
     }
 }

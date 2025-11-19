@@ -38,13 +38,26 @@ MonoBehaviour:
         FilterRuleName: CollectAll
         AssetTags: 
         UserData: 
-    - GroupName: ScriptDll
-      GroupDesc: "\u4EE3\u7801"
+    - GroupName: JITDLL
+      GroupDesc: "\u70ED\u66F4\u903B\u8F91\u4EE3\u7801"
       AssetTags: 
       ActiveRuleName: EnableGroup
       Collectors:
-      - CollectPath: Assets/Jit/PakageAsset/ScriptDLL
+      - CollectPath: Assets/Jit/PakageAsset/JITDLL
         CollectorGUID: e8da46675b705d84da51868833e16c56
+        CollectorType: 0
+        AddressRuleName: AddressByFileName
+        PackRuleName: PackDirectory
+        FilterRuleName: CollectAll
+        AssetTags: 
+        UserData: 
+    - GroupName: AOTDLL
+      GroupDesc: "\u70ED\u66F4AOTDLL"
+      AssetTags: 
+      ActiveRuleName: EnableGroup
+      Collectors:
+      - CollectPath: Assets/Jit/PakageAsset/AOTDLL
+        CollectorGUID: 75a6319618099ad4081d60a046f2bc77
         CollectorType: 0
         AddressRuleName: AddressByFileName
         PackRuleName: PackDirectory

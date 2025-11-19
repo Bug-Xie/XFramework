@@ -26,7 +26,7 @@ public class FsmUpdatePackageManifest : IStateNode
 
     private IEnumerator UpdateManifest()
     {
-        var packageName = ((AOTGlobalConfig)_machine.GetBlackboardValue("AOTGlobalConfig")).aotGlobalYooAssetConfig.packageName;
+        var packageName = AOTGlobalConstants.DEFAULT_PACKAGE_NAME;
         var packageVersion = (string)_machine.GetBlackboardValue("PackageVersion");
         var package = YooAssets.GetPackage(packageName);
         var operation = package.UpdatePackageManifestAsync(packageVersion);

@@ -5,13 +5,11 @@ using YooAsset;
 
 public class Launcher : MonoBehaviour
 {
-
-    public AOTGlobalConfig AOTGlobalConfig;
     void Awake()
     {
         Application.targetFrameRate = 60;
         Application.runInBackground = true;
-        DontDestroyOnLoad(this.gameObject);
+        DontDestroyOnLoad(gameObject);
     }
 
     IEnumerator Start()
@@ -24,7 +22,7 @@ public class Launcher : MonoBehaviour
         var go = Resources.Load<GameObject>("PatchWindow");
         GameObject.Instantiate(go);
         // 开始补丁更新流程
-        var operation = new PatchOperation(this, AOTGlobalConfig);
+        var operation = new PatchOperation(this);
         YooAssets.StartOperation(operation);
         yield return operation;
     }

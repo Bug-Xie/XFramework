@@ -303,16 +303,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b31814272240d9543b45c70cfb8c2d23, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  yooAssetConfig:
-    playMode: 2
-    packageName: DefaultPackage
-    HostServerURL: http://192.168.1.167:8084/XFramework/Android
-  hybridCLRConfig:
-    hotScriptDllPath: Assets/Jit/PakageAsset/ScriptDLL
-    hotScriptDllName: HotUpdate.dll
-    mainScriptName: GameManager
-    mainScriptMethod: GameStart
-  AOTGlobalConfig: {fileID: 11400000, guid: 4d4de6e6d74539d4bbde13c24f2817f8, type: 2}
+  AOTGlobalConfig: {fileID: 11400000, guid: ffcb6fb3ec4025048b2ce48ff5c68c69, type: 2}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
