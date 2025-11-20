@@ -1,7 +1,6 @@
 using YooAsset;
 
-
-    public class AOTGlobalConstants
+public class AOTGlobalConstants
     {
         /// <summary>
         /// 主热更程序集名称

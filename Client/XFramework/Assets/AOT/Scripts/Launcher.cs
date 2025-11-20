@@ -1,10 +1,13 @@
 using System.Collections;
-using UniFramework.Event;
 using UnityEngine;
-using YooAsset;
+using Cysharp.Threading.Tasks;
 
 public class Launcher : MonoBehaviour
 {
+    public YooAssetModule yooAssetModule;
+    public HybridCLRModule hybridCLRModule;
+    public PatchWindow patchWindow;
+
     void Awake()
     {
         Application.targetFrameRate = 60;
@@ -12,22 +15,42 @@ public class Launcher : MonoBehaviour
         DontDestroyOnLoad(gameObject);
     }
 
-    IEnumerator Start()
+    async void Start()
     {
-        //..................基础模块........................
-        Logger.Initialize();
-        UniEvent.Initalize();
-        //..................资源+代码更新........................
-        YooAssets.Initialize();
-        // 加载更新页面
-        var go = Resources.Load<GameObject>("PatchWindow");
-        GameObject.Instantiate(go);
-        // 开始补丁更新流程
-        var operation = new PatchOperation(this);
-        YooAssets.StartOperation(operation);
-        yield return operation;
+        try
+        {
+            //..................基础模块........................
+            Logger.Initialize();
+            // 连接事件
+            ConnectManagerEvents();
+            //..................资源更新........................
+            if (!await yooAssetModule.InitializeAndUpdate())
+                return;
+            //..................代码更新........................
+            await hybridCLRModule.StartHybridCLRUpdate();
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogError($"启动流程异常: {e.Message}");
+            if (patchWindow != null)
+                patchWindow.OnError($"启动流程异常: {e.Message}");
+        }
     }
-    
+
+    private void ConnectManagerEvents()
+    {
+        // 连接UI事件，用于显示进度和错误信息
+        yooAssetModule.OnStepChange += patchWindow.OnStepChange;
+        yooAssetModule.OnFoundUpdateFiles += patchWindow.OnFoundUpdateFiles;
+        yooAssetModule.OnDownloadProgress += patchWindow.OnDownloadProgress;
+        yooAssetModule.OnError += patchWindow.OnError;
+
+        hybridCLRModule.OnStepChange += patchWindow.OnStepChange;
+        hybridCLRModule.OnError += patchWindow.OnError;
+    }
+
+  
+
     private void OnApplicationQuit()
     {
         Logger.Shutdown();
