@@ -13,16 +13,16 @@ using System.Collections.Generic;
             AssetDatabase.Refresh();
 
             // 5. 生成HybridCLR所需的DLL
-            Debug.Log("生成HybridCLR热更DLL和AOT元数据DLL...");
+            BuildLogger.WriteLog("生成HybridCLR热更DLL和AOT元数据DLL...");
             PrebuildCommand.GenerateAll();
-            Debug.Log("开始处理DLL文件...");
-          
+            BuildLogger.WriteLog("开始处理DLL文件...");
+
             CopyDLL(true);  // 拷贝AOT DLL
             CopyDLL(false); // 拷贝JIT DLL
-            
+
             // 建议在最后刷新AssetDatabase
             AssetDatabase.Refresh();
-            Debug.Log("DLL处理完成！");
+            BuildLogger.WriteLog("DLL处理完成！");
         }
 
         public static void CopyDLL(bool isAOT)
@@ -50,16 +50,15 @@ using System.Collections.Generic;
             // 检查源目录是否存在
             if (!Directory.Exists(sourceDir))
             {
-                BuildLogger.WriteLog( $"{dllType} DLL源目录不存在: {sourceDir}",LogType.Error);
-                Debug.LogError($"{dllType} DLL源目录不存在: {sourceDir}");
+                BuildLogger.WriteLog($"{dllType} DLL源目录不存在: {sourceDir}", LogType.Error);
                 return;
             }
-         
+
             // 确保目标目录存在
             if (!Directory.Exists(targetDir))
             {
                 Directory.CreateDirectory(targetDir);
-                Debug.Log($"已创建{dllType} DLL目录: {targetDir}");
+                BuildLogger.WriteLog($"已创建{dllType} DLL目录: {targetDir}");
             }
             
             int copiedCount = 0;
@@ -72,7 +71,7 @@ using System.Collections.Generic;
                 // 智能过滤：只拷贝需要的 DLL
                 if (dllList.Count > 0 && !dllList.Contains(fileName))
                 {
-                    Debug.Log($"跳过不需要的{dllType} DLL: {fileName}");
+                    BuildLogger.WriteLog($"跳过不需要的{dllType} DLL: {fileName}");
                     skippedCount++;
                     continue;
                 }
@@ -85,15 +84,13 @@ using System.Collections.Generic;
 
                     copiedCount++;
                     BuildLogger.WriteLog($"已拷贝{dllType} DLL: {fileName} → {targetPath}");
-                    Debug.Log($"已拷贝{dllType} DLL: {fileName} → {targetPath}");
                 }
                 catch (System.Exception e)
                 {
-                    BuildLogger.WriteLog($"拷贝{dllType} DLL失败: {fileName}, 错误: {e.Message}",LogType.Error);
-                    Debug.LogError($"拷贝{dllType} DLL失败: {fileName}, 错误: {e.Message}");
+                    BuildLogger.WriteLog($"拷贝{dllType} DLL失败: {fileName}, 错误: {e.Message}", LogType.Error);
                 }
             }
 
-            Debug.Log($"完成{dllType} DLL拷贝: 成功 {copiedCount} 个, 跳过 {skippedCount} 个");
+            BuildLogger.WriteLog($"完成{dllType} DLL拷贝: 成功 {copiedCount} 个, 跳过 {skippedCount} 个");
         }
     }

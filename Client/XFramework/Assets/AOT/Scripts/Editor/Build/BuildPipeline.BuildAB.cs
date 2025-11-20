@@ -39,7 +39,7 @@ using YooAsset;
                 BuiltinShadersBundleName = string.Empty, //是否内置着色器资源包名称
                 DisableWriteTypeTree = false, // 全量包不禁用TypeTree写入
             };
-            Debug.Log($"准备构建");
+            BuildLogger.WriteLog("准备构建");
             ExecuteBuildAB(buildParams, "全量资源包");
             SetVersion("apk", newVersion);
         }
@@ -85,17 +85,17 @@ using YooAsset;
         /// </summary>
         private static void ExecuteBuildAB(ScriptableBuildParameters buildParams, string buildName)
         {
-            Debug.Log($"开始执行 {buildName} 构建...");
-            Debug.Log($"构建参数: 目标平台={buildParams.BuildTarget}, 版本={buildParams.PackageVersion}");
+            BuildLogger.WriteLog($"开始执行 {buildName} 构建...");
+            BuildLogger.WriteLog($"构建参数: 目标平台={buildParams.BuildTarget}, 版本={buildParams.PackageVersion}");
 
             var pipeline = new ScriptableBuildPipeline();
             var result = pipeline.Run(buildParams, false);
 
-            Debug.Log($"YooAsset构建完成: {(result.Success ? "成功 ✅" : "失败 ❌")}");
+            BuildLogger.WriteLog($"YooAsset构建完成: {(result.Success ? "成功 ✅" : "失败 ❌")}");
 
             if (result.Success)
             {
-                Debug.Log($"✅ {buildName}构建成功 | 版本: {buildParams.PackageVersion}");
+                BuildLogger.WriteLog($"✅ {buildName}构建成功 | 版本: {buildParams.PackageVersion}");
 
                 // 资源验证和日志
                 AssetDatabase.Refresh();
@@ -104,21 +104,21 @@ using YooAsset;
                 if (Directory.Exists(targetDir))
                 {
                     var files = Directory.GetFiles(targetDir, "*", SearchOption.AllDirectories);
-                    Debug.Log($"构建成功! 资源文件数量: {files.Length}");
+                    BuildLogger.WriteLog($"构建成功! 资源文件数量: {files.Length}");
 
                     if (files.Length > 0)
                     {
-                        Debug.Log("资源文件示例:");
+                        BuildLogger.WriteLog("资源文件示例:");
                         foreach (var file in files.Take(3))
                         {
-                            Debug.Log($"- {file.Replace(Application.dataPath, "Assets")}");
+                            BuildLogger.WriteLog($"- {file.Replace(Application.dataPath, "Assets")}");
                         }
                     }
                 }
             }
             else
             {
-                Debug.LogError($"❌ {buildName}构建失败，请检查错误日志");
+                BuildLogger.WriteLog($"❌ {buildName}构建失败，请检查错误日志", LogType.Error);
                 throw new Exception($"{buildName} 构建失败，已中断后续流程！");
             }
         }

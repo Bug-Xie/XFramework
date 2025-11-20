@@ -20,7 +20,7 @@ using System.IO;
         {
             string gitBashPath = BuildToolPanel.GetGitBashPath();
             string scriptPath = BuildToolPanel.GetSeverSyncScriptPath();
-            Debug.Log("脚本路径: " + scriptPath);
+            BuildLogger.WriteLog("脚本路径: " + scriptPath);
 
             var process = new System.Diagnostics.Process
             {
@@ -54,14 +54,14 @@ using System.IO;
             Console.WriteLine("标准输出:\n" + output);
             Console.WriteLine("错误输出:\n" + error);
 
-            Debug.Log("资源同步命令已执行");
+            BuildLogger.WriteLog("资源同步命令已执行");
         }
 
         static void CleanSeverRes()
         {
             string gitBashPath = BuildToolPanel.GetGitBashPath();
             string scriptPath = BuildToolPanel.GetBuildCleanScriptPath();
-            Debug.Log("脚本路径: " + scriptPath);
+            BuildLogger.WriteLog("脚本路径: " + scriptPath);
 
             var process = new System.Diagnostics.Process
             {
@@ -83,7 +83,7 @@ using System.IO;
             Console.WriteLine($"脚本执行完成，退出代码: {process.ExitCode}");
             Console.WriteLine("标准输出:\n" + output);
             Console.WriteLine("错误输出:\n" + error);
-            Debug.Log("远程服务器清理命令已执行");
+            BuildLogger.WriteLog("远程服务器清理命令已执行");
         }
     
 }

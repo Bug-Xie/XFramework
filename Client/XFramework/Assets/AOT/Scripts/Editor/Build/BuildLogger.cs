@@ -20,8 +20,8 @@ public static class BuildLogger
     {
         try
         {
-            // 确定日志文件路径
-            string logDir = Path.Combine(Application.dataPath, "BuildLogs");
+            // 确定日志文件路径 - 从BuildToolPanel获取可配置路径
+            string logDir = BuildToolPanel.GetBuildLogsDir();
             if (!Directory.Exists(logDir))
             {
                 Directory.CreateDirectory(logDir);

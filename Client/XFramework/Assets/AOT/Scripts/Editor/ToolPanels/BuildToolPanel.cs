@@ -1,3 +1,4 @@
+using System.IO;
 using System.Linq;
 using UnityEngine;
 using UnityEditor;
@@ -7,6 +8,7 @@ using UnityEditor;
 /// </summary>
 public class BuildToolPanel : BaseToolPanel
 {
+    private static string projectRoot => Directory.GetParent(Application.dataPath).FullName;
     public override string PanelName => "打包构建";
     public override string PanelIcon => "📦";
     public override string Description => "Unity项目构建管理工具，支持离线包、热更新包等多种构建方式";
@@ -20,19 +22,45 @@ public class BuildToolPanel : BaseToolPanel
     private BuildStatistics _buildStats = new BuildStatistics();
 
     // 构建配置 - 直接存储在类中
-    public static string AotDllDir = Application.dataPath + "/JIT/PakageAsset/AOTDLL";
-    public static string JitDllDir = Application.dataPath + "/JIT/PakageAsset/JITDLL";
-    public static string VersionFilePath = Application.dataPath + "/AOT/Scripts/Editor/Build/Buildversion.txt";
-    public static string OfflineModeSymbol = "RESOURCE_OFFLINE";
-    public static string AssetBundleSymbol = "RESOURCE_ASSETBUNDLE";
-    public static string AotDllsString = "System.Core.dll,System.dll,mscorlib.dll";
-    public static string JitDllsString = "HotUpdate.dll";
+// 获取项目根目录
+    private static string ProjectRoot = Directory.GetParent(Application.dataPath).FullName;
+
+// 构建配置
+    public static string AotDllDir;
+    public static string JitDllDir ;
+    public static string VersionFilePath;
+    public static string OfflineModeSymbol;
+    public static string AssetBundleSymbol;
+    public static string AotDllsString;
+    public static string JitDllsString;
 
     // 新增的路径配置
-    public static string GitBashPath = @"C:\Program Files\Git\bin\bash.exe";
-    public static string BuildCleanScriptPath = Application.dataPath + "/Assets/AOT/Scripts/Editor/BuildCleanSeverRes.sh";
-    public static string SeverSyncScriptPath = Application.dataPath + "/Assets/AOT/Scripts/Editor/SeverSyncRes.sh";
-    public static string LogPath = Application.dataPath + "/Assets/AOT/Scripts/Editor/sync_log.txt";
+    public static string GitBashPath;
+    public static string BuildCleanScriptPath;
+    public static string SeverSyncScriptPath;
+    public static string LogPath;
+    public static string BuildLogsDir;
+
+    static BuildToolPanel()
+    {
+    ProjectRoot = Directory.GetParent(Application.dataPath).FullName;
+
+// 构建配置
+     AotDllDir = Path.Combine(Application.dataPath, "JIT", "PakageAsset", "AOTDLL");
+     JitDllDir = Path.Combine(Application.dataPath, "JIT", "PakageAsset", "JITDLL");
+     VersionFilePath = Path.Combine(ProjectRoot, "SaveAsset", "BuildEditor", "In", "Buildversion.txt");
+     OfflineModeSymbol = "RESOURCE_OFFLINE";
+     AssetBundleSymbol = "RESOURCE_ASSETBUNDLE";
+     AotDllsString = "System.Core.dll,System.dll,mscorlib.dll";
+     JitDllsString = "HotUpdate.dll";
+
+    // 新增的路径配置
+     GitBashPath = @"C:\Program Files\Git\bin\bash.exe";
+     BuildCleanScriptPath = Path.Combine(ProjectRoot, "SaveAsset", "BuildEditor", "In", "BuildCleanSeverRes.sh");
+    SeverSyncScriptPath = Path.Combine(ProjectRoot, "SaveAsset", "BuildEditor", "In", "SeverSyncRes.sh");
+     LogPath = Path.Combine(ProjectRoot, "SaveAsset", "BuildEditor", "Out", "sync_log.txt");
+     BuildLogsDir = Path.Combine(ProjectRoot, "SaveAsset", "BuildEditor", "Out");
+    }
 
     public override void OnGUI()
     {
@@ -116,6 +144,7 @@ public class BuildToolPanel : BaseToolPanel
         DrawPathField("清理脚本路径:", ref BuildCleanScriptPath, false);
         DrawPathField("同步脚本路径:", ref SeverSyncScriptPath, false);
         DrawPathField("日志文件路径:", ref LogPath, false);
+        DrawPathField("构建日志目录:", ref BuildLogsDir, true);
 
         GUILayout.Space(10);
 
@@ -329,27 +358,29 @@ public class BuildToolPanel : BaseToolPanel
     {
         if (EditorUtility.DisplayDialog("重置确认", "将重置所有构建设置为默认值，是否继续？", "确认", "取消"))
         {
-            AotDllDir = Application.dataPath + "/JIT/PakageAsset/AOTDLL";
-            JitDllDir = Application.dataPath + "/JIT/PakageAsset/JITDLL";
-            VersionFilePath = Application.dataPath + "/AOT/Scripts/Editor/Build/Buildversion.txt";
+           
+            // 重置新增的路径配置
+            AotDllDir = Path.Combine(Application.dataPath, "JIT", "PakageAsset", "AOTDLL");
+            JitDllDir = Path.Combine(Application.dataPath, "JIT", "PakageAsset", "JITDLL");
+            VersionFilePath = Path.Combine(ProjectRoot, "SaveAsset", "BuildEditor", "In", "Buildversion.txt");
             OfflineModeSymbol = "RESOURCE_OFFLINE";
             AssetBundleSymbol = "RESOURCE_ASSETBUNDLE";
             AotDllsString = "System.Core.dll,System.dll,mscorlib.dll";
             JitDllsString = "HotUpdate.dll";
 
-            // 重置新增的路径配置
             GitBashPath = @"C:\Program Files\Git\bin\bash.exe";
-            BuildCleanScriptPath = Application.dataPath + "/Assets/AOT/Scripts/Editor/BuildCleanSeverRes.sh";
-            SeverSyncScriptPath = Application.dataPath + "/Assets/AOT/Scripts/Editor/SeverSyncRes.sh";
-            LogPath = Application.dataPath + "/Assets/AOT/Scripts/Editor/sync_log.txt";
-
+            BuildCleanScriptPath = Path.Combine(ProjectRoot, "SaveAsset", "BuildEditor", "In", "BuildCleanSeverRes.sh");
+            SeverSyncScriptPath = Path.Combine(ProjectRoot, "SaveAsset", "BuildEditor", "In", "SeverSyncRes.sh");
+            LogPath = Path.Combine(ProjectRoot, "SaveAsset", "BuildEditor", "Out", "sync_log.txt");
+            BuildLogsDir = Path.Combine(ProjectRoot, "SaveAsset", "BuildEditor", "Out");
+            
             EditorUtility.DisplayDialog("完成", "构建设置已重置为默认值", "确定");
         }
     }
 
     #endregion
 
-    #region BuildHelper兼容方法 (替代独立的BuildHelper类)
+    #region BuildHelper兼容方法 
 
     // 兼容原有API，直接在BuildToolPanel中提供
     public static string GetAOTDLLDir() => AotDllDir;
@@ -378,6 +409,7 @@ public class BuildToolPanel : BaseToolPanel
     public static string GetBuildCleanScriptPath() => BuildCleanScriptPath;
     public static string GetSeverSyncScriptPath() => SeverSyncScriptPath;
     public static string GetLogPath() => LogPath;
+    public static string GetBuildLogsDir() => BuildLogsDir;
 
     #endregion
 

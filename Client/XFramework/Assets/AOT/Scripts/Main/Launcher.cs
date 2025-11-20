@@ -1,7 +1,4 @@
-using System.Collections;
 using UnityEngine;
-using Cysharp.Threading.Tasks;
-
 public class Launcher : MonoBehaviour
 {
     public YooAssetModule yooAssetModule;
