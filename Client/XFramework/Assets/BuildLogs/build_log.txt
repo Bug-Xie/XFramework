@@ -1,0 +1,28 @@
+﻿[2025-11-20 09:05:05.724] [Info] === 构建日志系统初始化 ===
+[2025-11-20 09:05:05.729] [Info] 日志文件: C:/MyPart/Work/UnityHub/XFramework/Client/XFramework/Assets\BuildLogs\build_log.txt
+[2025-11-20 09:05:05.731] [Info] 初始化时间: 2025-11-20 09:05:05
+[2025-11-20 09:05:05.731] [Info] =========================
+[2025-11-20 09:05:05.731] [Info] 已拷贝AOT DLL: mscorlib.dll → C:/MyPart/Work/UnityHub/XFramework/Client/XFramework/Assets\AOT/PakageAsset/AOTDLL\mscorlib.dll.bytes
+[2025-11-20 09:05:05.731] [Info] 已拷贝AOT DLL: System.Core.dll → C:/MyPart/Work/UnityHub/XFramework/Client/XFramework/Assets\AOT/PakageAsset/AOTDLL\System.Core.dll.bytes
+[2025-11-20 09:05:05.732] [Info] 已拷贝AOT DLL: System.dll → C:/MyPart/Work/UnityHub/XFramework/Client/XFramework/Assets\AOT/PakageAsset/AOTDLL\System.dll.bytes
+[2025-11-20 09:05:05.737] [Info] 已拷贝JIT DLL: HotUpdate.dll → C:/MyPart/Work/UnityHub/XFramework/Client/XFramework/Assets\JIT/PakageAsset/JITDLL\HotUpdate.dll.bytes
+[2025-11-20 15:57:38.285] [Info] === 构建日志系统初始化 ===
+[2025-11-20 15:57:38.292] [Info] 日志文件: C:/MyPart/Work/UnityHub/XFramework/Client/XFramework/Assets\BuildLogs\build_log.txt
+[2025-11-20 15:57:38.292] [Info] 初始化时间: 2025-11-20 15:57:38
+[2025-11-20 15:57:38.292] [Info] =========================
+[2025-11-20 15:57:38.292] [Info] 已拷贝AOT DLL: mscorlib.dll → C:/MyPart/Work/UnityHub/XFramework/Client/XFramework/Assets\JIT/PakageAsset/AOTDLL\mscorlib.dll.bytes
+[2025-11-20 15:57:38.293] [Info] 已拷贝AOT DLL: System.Core.dll → C:/MyPart/Work/UnityHub/XFramework/Client/XFramework/Assets\JIT/PakageAsset/AOTDLL\System.Core.dll.bytes
+[2025-11-20 15:57:38.294] [Info] 已拷贝AOT DLL: System.dll → C:/MyPart/Work/UnityHub/XFramework/Client/XFramework/Assets\JIT/PakageAsset/AOTDLL\System.dll.bytes
+[2025-11-20 15:57:38.298] [Info] 已拷贝JIT DLL: HotUpdate.dll → C:/MyPart/Work/UnityHub/XFramework/Client/XFramework/Assets\JIT/PakageAsset/JITDLL\HotUpdate.dll.bytes
+[2025-11-20 16:03:25.093] [Info] 已拷贝AOT DLL: mscorlib.dll → C:/MyPart/Work/UnityHub/XFramework/Client/XFramework/Assets\JIT/PakageAsset/AOTDLL\mscorlib.dll.bytes
+[2025-11-20 16:03:25.094] [Info] 已拷贝AOT DLL: System.Core.dll → C:/MyPart/Work/UnityHub/XFramework/Client/XFramework/Assets\JIT/PakageAsset/AOTDLL\System.Core.dll.bytes
+[2025-11-20 16:03:25.096] [Info] 已拷贝AOT DLL: System.dll → C:/MyPart/Work/UnityHub/XFramework/Client/XFramework/Assets\JIT/PakageAsset/AOTDLL\System.dll.bytes
+[2025-11-20 16:03:25.099] [Info] 已拷贝JIT DLL: HotUpdate.dll → C:/MyPart/Work/UnityHub/XFramework/Client/XFramework/Assets\JIT/PakageAsset/JITDLL\HotUpdate.dll.bytes
+[2025-11-20 16:14:58.001] [Info] === 构建日志系统初始化 ===
+[2025-11-20 16:14:58.008] [Info] 日志文件: C:/MyPart/Work/UnityHub/XFramework/Client/XFramework/Assets\BuildLogs\build_log.txt
+[2025-11-20 16:14:58.008] [Info] 初始化时间: 2025-11-20 16:14:58
+[2025-11-20 16:14:58.008] [Info] =========================
+[2025-11-20 16:14:58.009] [Info] 已拷贝AOT DLL: mscorlib.dll → C:/MyPart/Work/UnityHub/XFramework/Client/XFramework/Assets\JIT/PakageAsset/AOTDLL\mscorlib.dll.bytes
+[2025-11-20 16:14:58.009] [Info] 已拷贝AOT DLL: System.Core.dll → C:/MyPart/Work/UnityHub/XFramework/Client/XFramework/Assets\JIT/PakageAsset/AOTDLL\System.Core.dll.bytes
+[2025-11-20 16:14:58.010] [Info] 已拷贝AOT DLL: System.dll → C:/MyPart/Work/UnityHub/XFramework/Client/XFramework/Assets\JIT/PakageAsset/AOTDLL\System.dll.bytes
+[2025-11-20 16:14:58.014] [Info] 已拷贝JIT DLL: HotUpdate.dll → C:/MyPart/Work/UnityHub/XFramework/Client/XFramework/Assets\JIT/PakageAsset/JITDLL\HotUpdate.dll.bytes

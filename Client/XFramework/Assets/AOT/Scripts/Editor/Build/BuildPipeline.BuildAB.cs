@@ -6,8 +6,7 @@ using UnityEngine;
 using System.IO;
 using YooAsset;
 
-namespace AOT.Scripts.Editor.Build
-{
+
     public partial class BuildPipelineEditor
     {
         /// <summary>
@@ -20,8 +19,8 @@ namespace AOT.Scripts.Editor.Build
 
             var buildParams = new ScriptableBuildParameters
             {
-                BuildOutputRoot = BuildHelper.GetDLLOutputPath(), //Yooasset 默认输出路径
-                BuildinFileRoot = BuildHelper.GetAOTDLLDir(), //Yooasset 默认复制Streamming路径
+                BuildOutputRoot = AssetBundleBuilderHelper.GetDefaultBuildOutputRoot(), //Yooasset 默认输出路径
+                BuildinFileRoot =AssetBundleBuilderHelper.GetStreamingAssetsRoot(), //Yooasset 默认复制Streamming路径
                 BuildPipeline = nameof(ScriptableBuildPipeline), //默认构建管线
                 BuildBundleType = (int)EBuildBundleType.AssetBundle, //构建格式        
                 BuildTarget = EditorUserBuildSettings.activeBuildTarget, //构建平台
@@ -56,8 +55,8 @@ namespace AOT.Scripts.Editor.Build
 
             var buildParams = new ScriptableBuildParameters
             {
-                BuildOutputRoot = BuildHelper.GetDLLOutputPath(), //Yooasset 默认输出路径
-                BuildinFileRoot = BuildHelper.GetAOTDLLDir(), //Yooasset 默认复制Streamming路径
+                BuildOutputRoot = AssetBundleBuilderHelper.GetDefaultBuildOutputRoot(), //Yooasset 默认输出路径
+                BuildinFileRoot =AssetBundleBuilderHelper.GetStreamingAssetsRoot(), //Yooasset 默认复制Streamming路径
                 BuildPipeline = nameof(ScriptableBuildPipeline), //默认构建管线
                 BuildBundleType = (int)EBuildBundleType.AssetBundle, //构建格式        
                 BuildTarget = EditorUserBuildSettings.activeBuildTarget, //构建平台
@@ -131,4 +130,3 @@ namespace AOT.Scripts.Editor.Build
     
     
     
-}

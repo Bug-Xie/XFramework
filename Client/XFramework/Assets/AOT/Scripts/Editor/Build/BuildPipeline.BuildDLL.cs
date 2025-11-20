@@ -4,8 +4,7 @@ using UnityEngine;
 using System.IO;
 using System.Collections.Generic;
 
-namespace AOT.Scripts.Editor.Build
-{
+
     public partial class BuildPipelineEditor
     {
         private static void BuildDLL()
@@ -17,7 +16,7 @@ namespace AOT.Scripts.Editor.Build
             Debug.Log("生成HybridCLR热更DLL和AOT元数据DLL...");
             PrebuildCommand.GenerateAll();
             Debug.Log("开始处理DLL文件...");
-
+          
             CopyDLL(true);  // 拷贝AOT DLL
             CopyDLL(false); // 拷贝JIT DLL
             
@@ -51,6 +50,7 @@ namespace AOT.Scripts.Editor.Build
             // 检查源目录是否存在
             if (!Directory.Exists(sourceDir))
             {
+                BuildLogger.WriteLog( $"{dllType} DLL源目录不存在: {sourceDir}",LogType.Error);
                 Debug.LogError($"{dllType} DLL源目录不存在: {sourceDir}");
                 return;
             }
@@ -84,10 +84,12 @@ namespace AOT.Scripts.Editor.Build
                     File.Copy(dllPath, targetPath, true);
 
                     copiedCount++;
+                    BuildLogger.WriteLog($"已拷贝{dllType} DLL: {fileName} → {targetPath}");
                     Debug.Log($"已拷贝{dllType} DLL: {fileName} → {targetPath}");
                 }
                 catch (System.Exception e)
                 {
+                    BuildLogger.WriteLog($"拷贝{dllType} DLL失败: {fileName}, 错误: {e.Message}",LogType.Error);
                     Debug.LogError($"拷贝{dllType} DLL失败: {fileName}, 错误: {e.Message}");
                 }
             }
@@ -95,4 +97,3 @@ namespace AOT.Scripts.Editor.Build
             Debug.Log($"完成{dllType} DLL拷贝: 成功 {copiedCount} 个, 跳过 {skippedCount} 个");
         }
     }
-}

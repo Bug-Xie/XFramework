@@ -2,8 +2,7 @@ using System;
 using UnityEngine;
 using System.IO;
 
-namespace AOT.Scripts.Editor.Build
-{
+
     public partial class BuildPipelineEditor
     {
         static void BuildFullSeverSync()
@@ -19,8 +18,8 @@ namespace AOT.Scripts.Editor.Build
 
         static void SeverSyncRes()
         {
-            string gitBashPath = @"C:\Program Files\Git\bin\bash.exe";
-            string scriptPath = Application.dataPath + "/sync_this_dir.sh";
+            string gitBashPath = @"C:\MyPart\Work\Git\Git\bin\bash.exe";
+            string scriptPath = Application.dataPath + "Assets/AOT/Scripts/Editor/SeverSyncRes.sh";
             Debug.Log("脚本路径: " + scriptPath);
 
             var process = new System.Diagnostics.Process
@@ -45,7 +44,7 @@ namespace AOT.Scripts.Editor.Build
                                 $"错误输出:\n{error}\n";
 
             // 保存到项目根目录下的 sync_log.txt
-            string logPath = Path.Combine(Application.dataPath, "sync_log.txt");
+            string logPath = Path.Combine(Application.dataPath, "Assets/AOT/Scripts/Editor/sync_log.txt");
             File.WriteAllText(logPath, logContent);
 
             Console.WriteLine(logContent);
@@ -62,7 +61,7 @@ namespace AOT.Scripts.Editor.Build
         {
             // 获取脚本路径 Assets
             string gitBashPath = @"C:\Program Files\Git\bin\bash.exe";
-            string scriptPath = Application.dataPath + "/clean_remote_dir.sh";
+            string scriptPath = Application.dataPath + "Assets/AOT/Scripts/Editor/BuildCleanSeverRes.sh";
             Debug.Log("脚本路径: " + scriptPath);
 
             var process = new System.Diagnostics.Process
@@ -87,5 +86,5 @@ namespace AOT.Scripts.Editor.Build
             Console.WriteLine("错误输出:\n" + error);
             Debug.Log("远程服务器清理命令已执行");
         }
-    }
+    
 }

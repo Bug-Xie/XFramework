@@ -6,7 +6,7 @@ public class GameMain
 {
     public static void  Start()
     { 
-        var sceneOperation = YooAssets.LoadSceneAsync("Assets/Jit/PakageAsset/Scenes/Home");
+        var sceneOperation = YooAssets.LoadSceneAsync("Assets/JIT/PakageAsset/Scenes/Home");
         // yield return sceneOperation;
       // yield return null;
       // // 现在查找对象

@@ -5,18 +5,17 @@ using BuildReport = UnityEditor.Build.Reporting.BuildReport;
 using UnityEngine;
 using System.IO;
 
-namespace AOT.Scripts.Editor.Build
-{
+
     public partial class BuildPipelineEditor
     {
         /// <summary>
         /// 构建APK包
         /// </summary>
         /// <param name="includeAllResources">true=全量包，false=核心包</param>
-        private static void BuildPlayer(bool includeAllResources,String apkName)
+        private static void BuildPlayer(String apkName)
         {
             Debug.Log("开始APK构建...");
-            Debug.Log($"构建类型: {(includeAllResources ? "全量包" : "核心包")}");
+            Debug.Log($"构建类型: 全量包");
             // 读取apk版本号
             string currentVersion = GetVersion("apk");
             // 确保资源刷新
@@ -40,7 +39,13 @@ namespace AOT.Scripts.Editor.Build
             if (report.summary.result == UnityEditor.Build.Reporting.BuildResult.Succeeded)
             {
                 Debug.Log($"✅ APK构建成功: {outputPath}");
-                Debug.Log($"文件大小: {report.summary.totalSize / (1024 * 1024)} MB");
+    
+                // 获取实际文件大小
+                FileInfo fileInfo = new FileInfo(outputPath);
+                long fileSizeBytes = fileInfo.Length;
+                double fileSizeMB = fileSizeBytes / (1024.0 * 1024.0);
+                double fileSizeKB = fileSizeBytes / 1024.0;
+                Debug.Log($"实际文件大小: {fileSizeMB:F2} MB ({fileSizeKB:F0} KB)");
             }
             else
             {
@@ -48,4 +53,3 @@ namespace AOT.Scripts.Editor.Build
             }
         }
     }
-}

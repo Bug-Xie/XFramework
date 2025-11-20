@@ -19,8 +19,6 @@ public class PatchOperation : GameAsyncOperation
 
     public PatchOperation(MonoBehaviour Behaviour)
     {
-        _packageName="DefaultPackage";
-
         // 注册监听事件
         _eventGroup.AddListener<UserEventDefine.UserTryInitialize>(OnHandleEventMessage);
         _eventGroup.AddListener<UserEventDefine.UserBeginDownloadWebFiles>(OnHandleEventMessage);

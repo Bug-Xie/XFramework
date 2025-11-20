@@ -6,11 +6,9 @@ using UnityEngine;
 using System.IO;
 using System.Collections.Generic;
 
-namespace AOT.Scripts.Editor.Build
+public partial class BuildPipelineEditor
 {
-    public partial class BuildPipelineEditor
-    {
-          /// <summary>
+    /// <summary>
     /// 读取所有版本号（如apk=1.2.3, hotfix=1.2.7）
     /// </summary>
     private static Dictionary<string, string> ReadAllVersions()
@@ -24,13 +22,16 @@ namespace AOT.Scripts.Editor.Build
             if (parts.Length == 2)
                 dict[parts[0].Trim()] = parts[1].Trim();
         }
+
         return dict;
     }
+
     private static string GetVersion(string key)
     {
         var dict = ReadAllVersions();
         return dict.ContainsKey(key) ? dict[key] : "1.0.0";
     }
+
     /// <summary>
     /// 写入所有版本号到version.txt
     /// </summary>
@@ -83,12 +84,11 @@ namespace AOT.Scripts.Editor.Build
                 patch++;
             }
         }
+
         return $"{major}.{minor}.{patch}";
     }
-    
-    
-    
-    
+
+
     /// <summary>
     /// 设置编译符号（宏定义），用于区分不同构建模式
     /// </summary>
@@ -111,6 +111,5 @@ namespace AOT.Scripts.Editor.Build
 
         PlayerSettings.SetScriptingDefineSymbolsForGroup(buildTargetGroup, string.Join(";", symbols));
         Debug.Log($"已设置编译符号: {symbol}");
-    }
     }
 }
