@@ -1,9 +1,10 @@
 using UnityEngine;
+
 public class Launcher : MonoBehaviour
 {
     public YooAssetModule yooAssetModule;
     public HybridCLRModule hybridCLRModule;
-    public PatchWindow patchWindow;
+    private PatchWindow patchWindow;
 
     void Awake()
     {
@@ -16,6 +17,9 @@ public class Launcher : MonoBehaviour
     {
         try
         {
+            //加载更新界面
+            GameObject patchWindowGameObject = Instantiate(Resources.Load<GameObject>("PatchWindow"));
+            patchWindow = patchWindowGameObject.AddComponent<PatchWindow>();
             // 连接事件
             ConnectManagerEvents();
             //..................资源更新........................
@@ -43,8 +47,4 @@ public class Launcher : MonoBehaviour
         hybridCLRModule.OnStepChange += patchWindow.OnStepChange;
         hybridCLRModule.OnError += patchWindow.OnError;
     }
-
- 
 }
-
-

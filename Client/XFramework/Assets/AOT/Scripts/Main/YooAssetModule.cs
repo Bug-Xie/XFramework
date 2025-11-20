@@ -46,28 +46,30 @@ public class YooAssetModule : MonoBehaviour
     {
         try
         {
+            Debug.Log(00);
             OnStepChange?.Invoke("初始化YooAsset...");
+            Debug.Log(000);
             YooAssets.Initialize();
-
+            Debug.Log(0);
             // 初始化资源包
             if (!await InitializePackage())
                 return false;
-
+            Debug.Log(1);
             // 请求资源版本
             if (!await RequestPackageVersion())
                 return false;
-
+            Debug.Log(2);
             // 更新资源清单
             if (!await UpdatePackageManifest())
                 return false;
-
+            Debug.Log(3);
             // 检查并下载更新文件
             if (!await CheckAndDownloadFiles())
                 return false;
-
+            Debug.Log(4);
             // 清理缓存文件
             await ClearCacheFiles();
-
+            Debug.Log(5);
             OnStepChange?.Invoke("YooAsset更新完成");
             FinishUpdate();
             return true;
