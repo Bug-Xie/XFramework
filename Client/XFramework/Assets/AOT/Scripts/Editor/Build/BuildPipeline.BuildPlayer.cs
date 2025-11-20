@@ -12,7 +12,7 @@ using System.IO;
         /// 构建APK包
         /// </summary>
         /// <param name="includeAllResources">true=全量包，false=核心包</param>
-        private static void BuildPlayer(String apkName)
+        public static void BuildPlayer(String apkName)
         {
             Debug.Log("开始APK构建...");
             Debug.Log($"构建类型: 全量包");

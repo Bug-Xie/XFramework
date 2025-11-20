@@ -4,7 +4,9 @@
       "Bash(dir /s \"Assets\\AOT\\Scripts\\Editor\\Build\\*\")",
       "Bash(dir \"C:\\MyPart\\Work\\UnityHub\\XFramework\\Client\\XFramework\\Assets\\AOT\\Scripts\\Log\")",
       "Bash(dir \"C:\\MyPart\\Work\\UnityHub\\XFramework\\Client\\XFramework\\Assets\\AOT\\Scripts\\Log\\Log\")",
-      "Bash(dir \"C:\\MyPart\\Work\\UnityHub\\XFramework\\Client\\XFramework\\Assets\\AOT\\Scripts\\Log\\Log\" /B)"
+      "Bash(dir \"C:\\MyPart\\Work\\UnityHub\\XFramework\\Client\\XFramework\\Assets\\AOT\\Scripts\\Log\\Log\" /B)",
+      "Bash(\"C:\\MyPart\\Work\\UnityHub\\XFramework\\Client\\XFramework\\Assets\\AOT\\Scripts\\Editor\\Build\\Buildversion.txt\")",
+      "Bash(del \"C:\\MyPart\\Work\\UnityHub\\XFramework\\Client\\XFramework\\Assets\\AOT\\Scripts\\Editor\\ToolPanels\\AssetToolPanel.cs\")"
     ],
     "deny": [],
     "ask": []

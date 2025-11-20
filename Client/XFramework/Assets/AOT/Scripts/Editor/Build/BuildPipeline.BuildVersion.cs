@@ -11,12 +11,12 @@ public partial class BuildPipelineEditor
     /// <summary>
     /// 读取所有版本号（如apk=1.2.3, hotfix=1.2.7）
     /// </summary>
-    private static Dictionary<string, string> ReadAllVersions()
+    public static Dictionary<string, string> ReadAllVersions()
     {
         var dict = new Dictionary<string, string>();
-        if (!File.Exists(BuildHelper.VersionFilePath))
+        if (!File.Exists(BuildToolPanel.VersionFilePath_Static))
             return dict;
-        foreach (var line in File.ReadAllLines(BuildHelper.VersionFilePath))
+        foreach (var line in File.ReadAllLines(BuildToolPanel.VersionFilePath_Static))
         {
             var parts = line.Split('=');
             if (parts.Length == 2)
@@ -26,7 +26,7 @@ public partial class BuildPipelineEditor
         return dict;
     }
 
-    private static string GetVersion(string key)
+    public static string GetVersion(string key)
     {
         var dict = ReadAllVersions();
         return dict.ContainsKey(key) ? dict[key] : "1.0.0";
@@ -35,16 +35,16 @@ public partial class BuildPipelineEditor
     /// <summary>
     /// 写入所有版本号到version.txt
     /// </summary>
-    private static void WriteAllVersions(Dictionary<string, string> dict)
+    public static void WriteAllVersions(Dictionary<string, string> dict)
     {
         var lines = dict.Select(kv => $"{kv.Key}={kv.Value}");
-        File.WriteAllLines(BuildHelper.VersionFilePath, lines);
+        File.WriteAllLines(BuildToolPanel.VersionFilePath_Static, lines);
     }
 
     /// <summary>
     /// 设置指定类型的版本号并写入文件
     /// </summary>
-    private static void SetVersion(string key, string version)
+    public static void SetVersion(string key, string version)
     {
         var dict = ReadAllVersions();
         dict[key] = version;
@@ -56,7 +56,7 @@ public partial class BuildPipelineEditor
     /// </summary>
     /// <param name="currentVersion">当前版本号</param>
     /// <param name="isFullBuild">true=次版本号+1，false=修订号+1</param>
-    private static string GetNextVersion(string currentVersion, bool isFullBuild)
+    public static string GetNextVersion(string currentVersion, bool isFullBuild)
     {
         var match = Regex.Match(currentVersion, @"^(\d+)\.(\d+)\.(\d+)$");
         if (!match.Success)
@@ -92,7 +92,7 @@ public partial class BuildPipelineEditor
     /// <summary>
     /// 设置编译符号（宏定义），用于区分不同构建模式
     /// </summary>
-    private static void SetScriptingDefineSymbol(string symbol)
+    public static void SetScriptingDefineSymbol(string symbol)
     {
         var buildTargetGroup = EditorUserBuildSettings.selectedBuildTargetGroup;
         var symbols = PlayerSettings.GetScriptingDefineSymbolsForGroup(buildTargetGroup)
@@ -100,8 +100,8 @@ public partial class BuildPipelineEditor
             .ToList();
 
         // 移除已有的相关符号，避免重复
-        symbols.Remove(BuildHelper.OFFLINE_MODE_SYMBOL);
-        symbols.Remove(BuildHelper.ASSETBUNDLE_MODE_SYMBOL);
+        symbols.Remove(BuildToolPanel.OFFLINE_MODE_SYMBOL);
+        symbols.Remove(BuildToolPanel.ASSETBUNDLE_MODE_SYMBOL);
 
         // 添加目标符号
         if (!symbols.Contains(symbol))
@@ -111,5 +111,47 @@ public partial class BuildPipelineEditor
 
         PlayerSettings.SetScriptingDefineSymbolsForGroup(buildTargetGroup, string.Join(";", symbols));
         Debug.Log($"已设置编译符号: {symbol}");
+    }
+
+    /// <summary>
+    /// 管理EnableLog宏定义
+    /// </summary>
+    /// <param name="enableLog">true为添加EnableLog宏，false为移除EnableLog宏</param>
+    public static void SetEnableLogSymbol(bool enableLog)
+    {
+        var buildTargetGroup = EditorUserBuildSettings.selectedBuildTargetGroup;
+        var symbols = PlayerSettings.GetScriptingDefineSymbolsForGroup(buildTargetGroup)
+            .Split(';')
+            .ToList();
+
+        const string ENABLE_LOG_SYMBOL = "EnableLog";
+
+        if (enableLog)
+        {
+            // 添加EnableLog宏
+            if (!symbols.Contains(ENABLE_LOG_SYMBOL))
+            {
+                symbols.Add(ENABLE_LOG_SYMBOL);
+                Debug.Log("已添加EnableLog宏定义");
+            }
+            else
+            {
+                Debug.Log("EnableLog宏定义已存在");
+            }
+        }
+        else
+        {
+            // 移除EnableLog宏
+            if (symbols.Remove(ENABLE_LOG_SYMBOL))
+            {
+                Debug.Log("已移除EnableLog宏定义");
+            }
+            else
+            {
+                Debug.Log("EnableLog宏定义不存在，无需移除");
+            }
+        }
+
+        PlayerSettings.SetScriptingDefineSymbolsForGroup(buildTargetGroup, string.Join(";", symbols));
     }
 }

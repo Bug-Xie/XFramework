@@ -7,7 +7,7 @@ using System.Collections.Generic;
 
     public partial class BuildPipelineEditor
     {
-        private static void BuildDLL()
+        public static void BuildDLL()
         {
             // 确保目录刷新
             AssetDatabase.Refresh();
@@ -36,15 +36,15 @@ using System.Collections.Generic;
             {
                 sourceDir = HybridCLR.Editor.SettingsUtil.GetAssembliesPostIl2CppStripDir(
                     EditorUserBuildSettings.activeBuildTarget);
-                targetDir = BuildHelper.GetAOTDLLDir();
-                dllList = BuildHelper.GetAotDLLNames();
+                targetDir = BuildToolPanel.GetAOTDLLDir();
+                dllList = BuildToolPanel.GetAotDLLNames();
             }
             else
             {
                 sourceDir = HybridCLR.Editor.SettingsUtil.GetHotUpdateDllsOutputDirByTarget(
                     EditorUserBuildSettings.activeBuildTarget);
-                targetDir = BuildHelper.GetJITDllDir();
-                dllList = BuildHelper.GetJITDLLNames();
+                targetDir = BuildToolPanel.GetJITDllDir();
+                dllList = BuildToolPanel.GetJITDLLNames();
             }
 
             // 检查源目录是否存在

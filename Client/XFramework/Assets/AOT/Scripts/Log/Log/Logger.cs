@@ -19,19 +19,6 @@ public static class Logger
     /// </summary>
     public static void Initialize()
     {
-        // 配置日志系统
-        LogConfig.CurrentLevel = LogLevel.Info;           // 设置日志级别
-        LogConfig.UseUnityDebug = true;                   // 使用Unity Debug输出
-        LogConfig.UseConsoleOutput = true;                // 同时输出到控制台
-        LogConfig.SaveToFile = true;                      // 保存到文件
-        LogConfig.ShowTimestamp = true;                   // 显示时间戳
-        LogConfig.ShowStackTrace = true;                  // 显示堆栈信息
-        LogConfig.StackTraceDepth = 5;                    // 堆栈深度
-        LogConfig.ShowSourceLink = true;                  // 显示源代码链接
-        LogConfig.MaxLogFileSize = 10 * 1024 * 1024;      // 单个文件10MB
-        LogConfig.MaxLogFileCount = 10;                   // 保留10个日志文件
-        
-        
         lock (_lockObject)
         {
             if (_initialized)

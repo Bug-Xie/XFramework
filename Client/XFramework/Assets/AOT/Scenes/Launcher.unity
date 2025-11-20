@@ -288,6 +288,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a9eb596661b497d49b4254102bd503d2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  packageName: DefaultPackage
+  packageURL: https://192.168.1.167:8084/XFramework
 --- !u!4 &552426478
 Transform:
   m_ObjectHideFlags: 0
@@ -335,6 +337,7 @@ Transform:
   m_Children:
   - {fileID: 552426478}
   - {fileID: 1874162878}
+  - {fileID: 1756441491}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &963194229
@@ -352,6 +355,60 @@ MonoBehaviour:
   yooAssetModule: {fileID: 552426477}
   hybridCLRModule: {fileID: 1874162877}
   patchWindow: {fileID: 4607067771552420938, guid: cd3c0e69e672e0f4cb953ab81d5644e9, type: 3}
+--- !u!1 &1756441490
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1756441491}
+  - component: {fileID: 1756441492}
+  m_Layer: 0
+  m_Name: LoggerModule
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1756441491
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1756441490}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 963194228}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1756441492
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1756441490}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 18d17810eb22b204191a25487c8c8f6d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  CurrentLevel: 0
+  UseUnityDebug: 1
+  UseConsoleOutput: 1
+  SaveToFile: 1
+  ShowTimestamp: 1
+  ShowStackTrace: 1
+  StackTraceDepth: 5
+  ShowSourceLink: 1
+  MaxLogFileSize: 10485760
+  MaxLogFileCount: 10
 --- !u!1 &1874162876
 GameObject:
   m_ObjectHideFlags: 0
@@ -381,6 +438,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ed5eca25f5e6a8e4f94b22cc2e52e1ce, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  packageName: DefaultPackage
+  hotUpdateAssemblyName: HotUpdate.dll
+  mainClassName: GameMain
+  mainMethodName: Start
 --- !u!4 &1874162878
 Transform:
   m_ObjectHideFlags: 0

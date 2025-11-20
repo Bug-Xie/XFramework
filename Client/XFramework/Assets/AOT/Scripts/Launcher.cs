@@ -19,8 +19,6 @@ public class Launcher : MonoBehaviour
     {
         try
         {
-            //..................基础模块........................
-            Logger.Initialize();
             // 连接事件
             ConnectManagerEvents();
             //..................资源更新........................
@@ -49,12 +47,7 @@ public class Launcher : MonoBehaviour
         hybridCLRModule.OnError += patchWindow.OnError;
     }
 
-  
-
-    private void OnApplicationQuit()
-    {
-        Logger.Shutdown();
-    }
+ 
 }
 
 

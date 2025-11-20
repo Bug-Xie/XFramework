@@ -12,7 +12,7 @@ using YooAsset;
         /// <summary>
         /// 构建全量资源包
         /// </summary>
-        private static void BuildFullAB()
+        public static void BuildFullAB()
         {
             string currentVersion = GetVersion("apk");
             string newVersion = GetNextVersion(currentVersion, true);
@@ -22,9 +22,9 @@ using YooAsset;
                 BuildOutputRoot = AssetBundleBuilderHelper.GetDefaultBuildOutputRoot(), //Yooasset 默认输出路径
                 BuildinFileRoot =AssetBundleBuilderHelper.GetStreamingAssetsRoot(), //Yooasset 默认复制Streamming路径
                 BuildPipeline = nameof(ScriptableBuildPipeline), //默认构建管线
-                BuildBundleType = (int)EBuildBundleType.AssetBundle, //构建格式        
+                BuildBundleType = (int)EBuildBundleType.AssetBundle, //构建格式
                 BuildTarget = EditorUserBuildSettings.activeBuildTarget, //构建平台
-                PackageName =AOTGlobalConstants.DEFAULT_PACKAGE_NAME, //包名
+                PackageName = "DefaultPackage", //包名
                 PackageVersion = newVersion, // 次版本号升级
                 EnableSharePackRule = false, //是否共享
                 VerifyBuildingResult = true, //验证结果
@@ -47,7 +47,7 @@ using YooAsset;
         /// <summary>
         /// 构建热更新资源包
         /// </summary>
-        private static void BuildIncrementalAB()
+        public static void BuildIncrementalAB()
         {
             // 读取并递增hotfix版本号
             string currentVersion = GetVersion("apk");
@@ -58,9 +58,9 @@ using YooAsset;
                 BuildOutputRoot = AssetBundleBuilderHelper.GetDefaultBuildOutputRoot(), //Yooasset 默认输出路径
                 BuildinFileRoot =AssetBundleBuilderHelper.GetStreamingAssetsRoot(), //Yooasset 默认复制Streamming路径
                 BuildPipeline = nameof(ScriptableBuildPipeline), //默认构建管线
-                BuildBundleType = (int)EBuildBundleType.AssetBundle, //构建格式        
+                BuildBundleType = (int)EBuildBundleType.AssetBundle, //构建格式
                 BuildTarget = EditorUserBuildSettings.activeBuildTarget, //构建平台
-                PackageName = AOTGlobalConstants.DEFAULT_PACKAGE_NAME, //包名
+                PackageName = "DefaultPackage", //包名
                 PackageVersion = newVersion, // 次版本号升级
                 EnableSharePackRule = true, //是否共享
                 VerifyBuildingResult = true, //验证结果

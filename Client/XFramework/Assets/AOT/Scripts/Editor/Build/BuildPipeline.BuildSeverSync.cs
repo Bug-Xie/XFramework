@@ -18,8 +18,8 @@ using System.IO;
 
         static void SeverSyncRes()
         {
-            string gitBashPath = @"C:\MyPart\Work\Git\Git\bin\bash.exe";
-            string scriptPath = Application.dataPath + "Assets/AOT/Scripts/Editor/SeverSyncRes.sh";
+            string gitBashPath = BuildToolPanel.GetGitBashPath();
+            string scriptPath = BuildToolPanel.GetSeverSyncScriptPath();
             Debug.Log("脚本路径: " + scriptPath);
 
             var process = new System.Diagnostics.Process
@@ -43,8 +43,8 @@ using System.IO;
                                 $"标准输出:\n{output}\n" +
                                 $"错误输出:\n{error}\n";
 
-            // 保存到项目根目录下的 sync_log.txt
-            string logPath = Path.Combine(Application.dataPath, "Assets/AOT/Scripts/Editor/sync_log.txt");
+            // 保存到配置的日志路径
+            string logPath = BuildToolPanel.GetLogPath();
             File.WriteAllText(logPath, logContent);
 
             Console.WriteLine(logContent);
@@ -59,9 +59,8 @@ using System.IO;
 
         static void CleanSeverRes()
         {
-            // 获取脚本路径 Assets
-            string gitBashPath = @"C:\Program Files\Git\bin\bash.exe";
-            string scriptPath = Application.dataPath + "Assets/AOT/Scripts/Editor/BuildCleanSeverRes.sh";
+            string gitBashPath = BuildToolPanel.GetGitBashPath();
+            string scriptPath = BuildToolPanel.GetBuildCleanScriptPath();
             Debug.Log("脚本路径: " + scriptPath);
 
             var process = new System.Diagnostics.Process
