@@ -15,6 +15,7 @@ public class Launcher : MonoBehaviour
     IEnumerator Start()
     {
         //..................基础模块........................
+        Logger.Initialize();
         UniEvent.Initalize();
         //..................资源+代码更新........................
         YooAssets.Initialize();
@@ -25,6 +26,11 @@ public class Launcher : MonoBehaviour
         var operation = new PatchOperation(this);
         YooAssets.StartOperation(operation);
         yield return operation;
+    }
+    
+    private void OnApplicationQuit()
+    {
+        Logger.Shutdown();
     }
 }
 

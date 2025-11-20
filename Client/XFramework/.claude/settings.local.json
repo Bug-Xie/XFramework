@@ -1,7 +1,10 @@
 {
   "permissions": {
     "allow": [
-      "Bash(dir /s \"Assets\\AOT\\Scripts\\Editor\\Build\\*\")"
+      "Bash(dir /s \"Assets\\AOT\\Scripts\\Editor\\Build\\*\")",
+      "Bash(dir \"C:\\MyPart\\Work\\UnityHub\\XFramework\\Client\\XFramework\\Assets\\AOT\\Scripts\\Log\")",
+      "Bash(dir \"C:\\MyPart\\Work\\UnityHub\\XFramework\\Client\\XFramework\\Assets\\AOT\\Scripts\\Log\\Log\")",
+      "Bash(dir \"C:\\MyPart\\Work\\UnityHub\\XFramework\\Client\\XFramework\\Assets\\AOT\\Scripts\\Log\\Log\" /B)"
     ],
     "deny": [],
     "ask": []

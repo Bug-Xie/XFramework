@@ -8,18 +8,18 @@ public partial class BuildPipelineEditor
     [MenuItem("YooAsset/构建/全量包(离线)")]
     public static void BuildOfflineAPK()
     {
-        Debug.Log("开始构建内部测试全量包...");
-        Debug.Log("步骤1/5: 设置离宏");
+        Log.Info("开始构建内部测试全量包...");
+        Log.Info("步骤1/5: 设置离宏");
         SetScriptingDefineSymbol(BuildHelper.OFFLINE_MODE_SYMBOL); // 设置编译符号为离线模式
-        Debug.Log("步骤2/5: 初始化清空资源输出目录");
+        Log.Info("步骤2/5: 初始化清空资源输出目录");
         BuildInit(true);
-        Debug.Log("步骤3/5: 构建DLL");
+        Log.Info("步骤3/5: 构建DLL");
         BuildDLL();
-        Debug.Log("步骤4/5: 构建资源包");
+        Log.Info("步骤4/5: 构建资源包");
         BuildFullAB();
-        Debug.Log("步骤5/5: 构建APK");
+        Log.Info("步骤5/5: 构建APK");
         BuildPlayer( "Offline"); // 构建包含所有资源的APK
-        Debug.Log("========== 全量包(离线)完成 ==========");
+        Log.Info("========== 全量包(离线)完成 ==========");
     }
 
     // 构建支持热更的全量包
