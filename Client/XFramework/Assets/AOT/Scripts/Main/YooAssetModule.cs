@@ -121,7 +121,8 @@ public class YooAssetModule : MonoBehaviour
         // 联机运行模式
         else if (currentPlayMode == EPlayMode.HostPlayMode)
         {
-            IRemoteServices remoteServices = new RemoteServices(packageURL, packageURL);
+            string platformURL = GetPlatformURL(packageURL);
+            IRemoteServices remoteServices = new RemoteServices(platformURL, platformURL);
             var createParameters = new HostPlayModeParameters();
             createParameters.BuildinFileSystemParameters = null;
             createParameters.CacheFileSystemParameters =
@@ -134,7 +135,9 @@ public class YooAssetModule : MonoBehaviour
 #if UNITY_WEBGL && WEIXINMINIGAME && !UNITY_EDITOR
             var createParameters = new WebPlayModeParameters();
             string packageRoot = $"{WeChatWASM.WX.env.USER_DATA_PATH}/__GAME_FILE_CACHE";
-            IRemoteServices remoteServices = new RemoteServices(packageURL, packageURL);
+            string platformURL = GetPlatformURL(packageURL);
+            Log.Info($"远程资源地址: {platformURL}");
+            IRemoteServices remoteServices = new RemoteServices(platformURL, platformURL);
             createParameters.WebServerFileSystemParameters =
  WechatFileSystemCreater.CreateFileSystemParameters(packageRoot, remoteServices);
             initializationOperation = _package.InitializeAsync(createParameters);
@@ -150,7 +153,7 @@ public class YooAssetModule : MonoBehaviour
 
         if (initializationOperation.Status != EOperationStatus.Succeed)
         {
-            Log.Warn($"初始化资源包失败: {initializationOperation.Error}");
+            Log.Error($"初始化资源包失败: {initializationOperation.Error}");
             OnError?.Invoke("初始化资源包失败!");
             return false;
         }
@@ -170,7 +173,7 @@ public class YooAssetModule : MonoBehaviour
 
         if (operation.Status != EOperationStatus.Succeed)
         {
-            Log.Warn($"请求资源版本失败: {operation.Error}");
+            Log.Error($"请求资源版本失败: {operation.Error}");
             OnError?.Invoke("请求资源版本失败!");
             return false;
         }
@@ -192,7 +195,7 @@ public class YooAssetModule : MonoBehaviour
 
         if (operation.Status != EOperationStatus.Succeed)
         {
-            Log.Warn($"更新资源清单失败: {operation.Error}");
+            Log.Error($"更新资源清单失败: {operation.Error}");
             OnError?.Invoke("更新资源清单失败!");
             return false;
         }
@@ -212,7 +215,7 @@ public class YooAssetModule : MonoBehaviour
 
         if (_downloader.TotalDownloadCount == 0)
         {
-            Log.Info("No files to download!");
+            Log.Warn("No files to download!");
             return true;
         }
 
@@ -268,6 +271,39 @@ public class YooAssetModule : MonoBehaviour
 
         var operation = _package.ClearCacheFilesAsync(EFileClearMode.ClearUnusedBundleFiles);
         await operation.ToUniTask();
+    }
+
+    /// <summary>
+    /// 根据当前平台获取完整的资源URL
+    /// </summary>
+    private string GetPlatformURL(string baseURL)
+    {
+        string platformName = GetPlatformName();
+        // 确保baseURL末尾没有斜杠
+        baseURL = baseURL.TrimEnd('/');
+        return $"{baseURL}/{platformName}";
+    }
+
+    /// <summary>
+    /// 获取当前平台名称
+    /// </summary>
+    private string GetPlatformName()
+    {
+#if UNITY_ANDROID
+        return "Android";
+#elif UNITY_IOS
+        return "iOS";
+#elif UNITY_WEBGL
+        return "WebGL";
+#elif UNITY_STANDALONE_WIN
+        return "Windows";
+#elif UNITY_STANDALONE_OSX
+        return "MacOS";
+#elif UNITY_STANDALONE_LINUX
+        return "Linux";
+#else
+        return "Default";
+#endif
     }
 
     /// <summary>

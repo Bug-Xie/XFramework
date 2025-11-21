@@ -289,7 +289,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   packageName: DefaultPackage
-  packageURL: https://192.168.1.167:8084/XFramework
+  packageURL: http://192.168.1.167:8084/XFramework/Res
 --- !u!4 &552426478
 Transform:
   m_ObjectHideFlags: 0

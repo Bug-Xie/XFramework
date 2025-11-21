@@ -6,7 +6,8 @@
       "Bash(dir \"C:\\MyPart\\Work\\UnityHub\\XFramework\\Client\\XFramework\\Assets\\AOT\\Scripts\\Log\\Log\")",
       "Bash(dir \"C:\\MyPart\\Work\\UnityHub\\XFramework\\Client\\XFramework\\Assets\\AOT\\Scripts\\Log\\Log\" /B)",
       "Bash(\"C:\\MyPart\\Work\\UnityHub\\XFramework\\Client\\XFramework\\Assets\\AOT\\Scripts\\Editor\\Build\\Buildversion.txt\")",
-      "Bash(del \"C:\\MyPart\\Work\\UnityHub\\XFramework\\Client\\XFramework\\Assets\\AOT\\Scripts\\Editor\\ToolPanels\\AssetToolPanel.cs\")"
+      "Bash(del \"C:\\MyPart\\Work\\UnityHub\\XFramework\\Client\\XFramework\\Assets\\AOT\\Scripts\\Editor\\ToolPanels\\AssetToolPanel.cs\")",
+      "Bash(del \"C:\\MyPart\\Work\\UnityHub\\XFramework\\Client\\XFramework\\Assets\\link.xml\")"
     ],
     "deny": [],
     "ask": []
