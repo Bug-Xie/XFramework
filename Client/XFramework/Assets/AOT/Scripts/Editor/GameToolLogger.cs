@@ -6,7 +6,7 @@ using UnityEngine;
 /// <summary>
 /// 构建日志记录工具
 /// </summary>
-public static class BuildLogger
+public static class GameToolLogger
 {
     private static string _logFilePath;
     private static StreamWriter _writer;
@@ -30,7 +30,7 @@ public static class BuildLogger
             _logFilePath = Path.Combine(logDir, logFileName);
             
             // 创建或追加到日志文件
-            _writer = new StreamWriter(_logFilePath, true, Encoding.UTF8);
+            _writer = new StreamWriter(_logFilePath, false, Encoding.UTF8);
             _isInitialized = true;
             
             WriteLog("=== 构建日志系统初始化 ===");
@@ -83,19 +83,7 @@ public static class BuildLogger
         }
     }
 
-    /// <summary>
-    /// 写入构建失败日志
-    /// </summary>
-    public static void WriteBuildFailure(string errorMessage)
-    {
-        string message = $@"
-❌ 构建失败!
-💥 错误信息: {errorMessage}
-⏰ 失败时间: {DateTime.Now:yyyy-MM-dd HH:mm:ss}
-";
-        WriteLog(message, LogType.Error);
-    }
-
+  
     /// <summary>
     /// 关闭日志系统
     /// </summary>
@@ -110,14 +98,7 @@ public static class BuildLogger
         }
         _isInitialized = false;
     }
-
-    /// <summary>
-    /// 获取日志文件路径
-    /// </summary>
-    public static string GetLogFilePath()
-    {
-        return _logFilePath;
-    }
+    
 }
 
 /// <summary>

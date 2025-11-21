@@ -64,7 +64,7 @@ public partial class BuildPipelineEditor
         }
 
         PlayerSettings.SetScriptingDefineSymbolsForGroup(buildTargetGroup, string.Join(";", symbols));
-        BuildLogger.WriteLog($"已设置编译符号: {symbol}");
+        GameToolLogger.WriteLog($"已设置编译符号: {symbol}");
     }
 
     /// <summary>
@@ -86,11 +86,11 @@ public partial class BuildPipelineEditor
             if (!symbols.Contains(ENABLE_LOG_SYMBOL))
             {
                 symbols.Add(ENABLE_LOG_SYMBOL);
-                BuildLogger.WriteLog("已添加EnableLog宏定义");
+                GameToolLogger.WriteLog("已添加EnableLog宏定义");
             }
             else
             {
-                BuildLogger.WriteLog("EnableLog宏定义已存在");
+                GameToolLogger.WriteLog("EnableLog宏定义已存在");
             }
         }
         else
@@ -98,11 +98,11 @@ public partial class BuildPipelineEditor
             // 移除EnableLog宏
             if (symbols.Remove(ENABLE_LOG_SYMBOL))
             {
-                BuildLogger.WriteLog("已移除EnableLog宏定义");
+                GameToolLogger.WriteLog("已移除EnableLog宏定义");
             }
             else
             {
-                BuildLogger.WriteLog("EnableLog宏定义不存在，无需移除");
+                GameToolLogger.WriteLog("EnableLog宏定义不存在，无需移除");
             }
         }
 

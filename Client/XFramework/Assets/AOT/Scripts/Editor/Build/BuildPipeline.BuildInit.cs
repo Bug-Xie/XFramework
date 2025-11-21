@@ -13,14 +13,14 @@ public partial class BuildPipelineEditor
         /// </summary>
         public static void BuildInit(bool buildAPK)
         {
-            BuildLogger.WriteLog("开始构建环境准备...");
+            GameToolLogger.WriteLog("开始构建环境准备...");
 
             // 清理AOT DLL目录
             string aotDllDir = BuildToolPanel.GetAOTDLLDir();
             if (Directory.Exists(aotDllDir))
             {
                 Directory.Delete(aotDllDir, true);
-                BuildLogger.WriteLog($"已清理AOT DLL目录: {aotDllDir}");
+                GameToolLogger.WriteLog($"已清理AOT DLL目录: {aotDllDir}");
             }
 
             // 清理JIT DLL目录
@@ -28,7 +28,7 @@ public partial class BuildPipelineEditor
             if (Directory.Exists(jitDllDir))
             {
                 Directory.Delete(jitDllDir, true);
-                BuildLogger.WriteLog($"已清理JIT DLL目录: {jitDllDir}");
+                GameToolLogger.WriteLog($"已清理JIT DLL目录: {jitDllDir}");
             }
 
             // 清理内置资源目录（StreamingAssets/DefaultPackage）
@@ -36,7 +36,7 @@ public partial class BuildPipelineEditor
             if (Directory.Exists(streamingAssetsDir))
             {
                 Directory.Delete(streamingAssetsDir, true);
-                BuildLogger.WriteLog($"已清理StreamingAssets资源目录: {streamingAssetsDir}");
+                GameToolLogger.WriteLog($"已清理StreamingAssets资源目录: {streamingAssetsDir}");
             }
         }
     }

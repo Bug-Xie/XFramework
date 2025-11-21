@@ -39,16 +39,16 @@ public partial class BuildPipelineEditor
     {
         try
         {
-            BuildLogger.WriteLog($"========================================");
-            BuildLogger.WriteLog($"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] 开始清理本地服务器资源目录");
-            BuildLogger.WriteLog($"平台: {PLATFORM}");
-            BuildLogger.WriteLog($"清理路径: {ServerResDir}");
-            BuildLogger.WriteLog($"========================================");
+            GameToolLogger.WriteLog($"========================================");
+            GameToolLogger.WriteLog($"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] 开始清理本地服务器资源目录");
+            GameToolLogger.WriteLog($"平台: {PLATFORM}");
+            GameToolLogger.WriteLog($"清理路径: {ServerResDir}");
+            GameToolLogger.WriteLog($"========================================");
 
             // 检查目录是否存在
             if (Directory.Exists(ServerResDir))
             {
-                BuildLogger.WriteLog("正在清空目录...");
+                GameToolLogger.WriteLog("正在清空目录...");
 
                 // 删除目录下所有文件和子目录
                 DirectoryInfo di = new DirectoryInfo(ServerResDir);
@@ -61,29 +61,29 @@ public partial class BuildPipelineEditor
                     dir.Delete(true);
                 }
 
-                BuildLogger.WriteLog("✅ 目录已完全清空");
+                GameToolLogger.WriteLog("✅ 目录已完全清空");
             }
             else
             {
-                BuildLogger.WriteLog("⚠️ 目录不存在，正在创建...");
+                GameToolLogger.WriteLog("⚠️ 目录不存在，正在创建...");
                 Directory.CreateDirectory(ServerResDir);
-                BuildLogger.WriteLog("✅ 目录创建成功");
+                GameToolLogger.WriteLog("✅ 目录创建成功");
             }
 
             // 验证清理结果
             int fileCount = Directory.GetFiles(ServerResDir, "*", SearchOption.AllDirectories).Length;
-            BuildLogger.WriteLog($"========================================");
-            BuildLogger.WriteLog($"✅ 清理完成!");
-            BuildLogger.WriteLog($"剩余文件数量: {fileCount}");
-            BuildLogger.WriteLog($"========================================");
+            GameToolLogger.WriteLog($"========================================");
+            GameToolLogger.WriteLog($"✅ 清理完成!");
+            GameToolLogger.WriteLog($"剩余文件数量: {fileCount}");
+            GameToolLogger.WriteLog($"========================================");
         }
         catch (Exception ex)
         {
-            BuildLogger.WriteLog($"========================================");
-            BuildLogger.WriteLog($"❌ 清理失败!");
-            BuildLogger.WriteLog($"错误信息: {ex.Message}");
-            BuildLogger.WriteLog($"堆栈跟踪: {ex.StackTrace}");
-            BuildLogger.WriteLog($"========================================");
+            GameToolLogger.WriteLog($"========================================");
+            GameToolLogger.WriteLog($"❌ 清理失败!");
+            GameToolLogger.WriteLog($"错误信息: {ex.Message}");
+            GameToolLogger.WriteLog($"堆栈跟踪: {ex.StackTrace}");
+            GameToolLogger.WriteLog($"========================================");
             throw;
         }
     }
@@ -95,34 +95,34 @@ public partial class BuildPipelineEditor
     {
         try
         {
-            BuildLogger.WriteLog($"========================================");
-            BuildLogger.WriteLog($"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] 开始资源同步");
-            BuildLogger.WriteLog($"平台: {PLATFORM}");
-            BuildLogger.WriteLog($"源目录: {BundlesDir}");
-            BuildLogger.WriteLog($"目标目录: {ServerResDir}");
-            BuildLogger.WriteLog($"========================================");
+            GameToolLogger.WriteLog($"========================================");
+            GameToolLogger.WriteLog($"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] 开始资源同步");
+            GameToolLogger.WriteLog($"平台: {PLATFORM}");
+            GameToolLogger.WriteLog($"源目录: {BundlesDir}");
+            GameToolLogger.WriteLog($"目标目录: {ServerResDir}");
+            GameToolLogger.WriteLog($"========================================");
 
             // 检查源目录是否存在
             if (!Directory.Exists(BundlesDir))
             {
-                BuildLogger.WriteLog($"❌ 错误: Bundles目录不存在: {BundlesDir}");
-                BuildLogger.WriteLog("请先执行资源包构建");
+                GameToolLogger.WriteLog($"❌ 错误: Bundles目录不存在: {BundlesDir}");
+                GameToolLogger.WriteLog("请先执行资源包构建");
                 throw new DirectoryNotFoundException($"Bundles目录不存在: {BundlesDir}");
             }
 
             // 检查目标目录是否存在，不存在则创建
             if (!Directory.Exists(ServerResDir))
             {
-                BuildLogger.WriteLog("⚠️ 服务器资源目录不存在，正在创建...");
+                GameToolLogger.WriteLog("⚠️ 服务器资源目录不存在，正在创建...");
                 Directory.CreateDirectory(ServerResDir);
-                BuildLogger.WriteLog("✅ 目录创建成功");
+                GameToolLogger.WriteLog("✅ 目录创建成功");
             }
 
-            BuildLogger.WriteLog("当前工作目录: " + BundlesDir);
+            GameToolLogger.WriteLog("当前工作目录: " + BundlesDir);
 
             // 查找版本文件夹（格式: X.Y.Z）
-            BuildLogger.WriteLog("");
-            BuildLogger.WriteLog("===== 扫描版本文件夹 =====");
+            GameToolLogger.WriteLog("");
+            GameToolLogger.WriteLog("===== 扫描版本文件夹 =====");
 
             List<string> versionDirs = new List<string>();
             DirectoryInfo bundlesDirInfo = new DirectoryInfo(BundlesDir);
@@ -137,29 +137,29 @@ public partial class BuildPipelineEditor
 
             if (versionDirs.Count == 0)
             {
-                BuildLogger.WriteLog("❌ 错误: 未找到版本文件夹");
-                BuildLogger.WriteLog("Bundles目录应包含类似 1.0.0, 2.0.0 等版本文件夹");
+                GameToolLogger.WriteLog("❌ 错误: 未找到版本文件夹");
+                GameToolLogger.WriteLog("Bundles目录应包含类似 1.0.0, 2.0.0 等版本文件夹");
                 throw new Exception("未找到版本文件夹");
             }
 
             // 按版本号排序
             versionDirs.Sort((a, b) => new Version(a).CompareTo(new Version(b)));
 
-            BuildLogger.WriteLog("检测到的版本文件夹:");
+            GameToolLogger.WriteLog("检测到的版本文件夹:");
             foreach (string version in versionDirs)
             {
-                BuildLogger.WriteLog($"  {version}");
+                GameToolLogger.WriteLog($"  {version}");
             }
-            BuildLogger.WriteLog("==========================");
+            GameToolLogger.WriteLog("==========================");
 
             // 获取最新版本和上一版本
             string currentVersion = versionDirs[versionDirs.Count - 1];
             string lastVersion = versionDirs.Count > 1 ? versionDirs[versionDirs.Count - 2] : null;
 
-            BuildLogger.WriteLog("");
-            BuildLogger.WriteLog($"当前版本: {currentVersion}");
-            BuildLogger.WriteLog($"上一版本: {(string.IsNullOrEmpty(lastVersion) ? "无" : lastVersion)}");
-            BuildLogger.WriteLog("");
+            GameToolLogger.WriteLog("");
+            GameToolLogger.WriteLog($"当前版本: {currentVersion}");
+            GameToolLogger.WriteLog($"上一版本: {(string.IsNullOrEmpty(lastVersion) ? "无" : lastVersion)}");
+            GameToolLogger.WriteLog("");
 
             // 判断是全量更新还是增量更新
             if (string.IsNullOrEmpty(lastVersion))
@@ -177,22 +177,22 @@ public partial class BuildPipelineEditor
             int fileCount = Directory.GetFiles(ServerResDir, "*", SearchOption.AllDirectories).Length;
             long totalSize = GetDirectorySize(new DirectoryInfo(ServerResDir));
 
-            BuildLogger.WriteLog("");
-            BuildLogger.WriteLog("=========================================");
-            BuildLogger.WriteLog("服务器资源目录内容:");
-            BuildLogger.WriteLog($"总文件数: {fileCount}");
-            BuildLogger.WriteLog($"总大小: {FormatFileSize(totalSize)}");
-            BuildLogger.WriteLog("=========================================");
-            BuildLogger.WriteLog("✅ 资源同步完成!");
-            BuildLogger.WriteLog("=========================================");
+            GameToolLogger.WriteLog("");
+            GameToolLogger.WriteLog("=========================================");
+            GameToolLogger.WriteLog("服务器资源目录内容:");
+            GameToolLogger.WriteLog($"总文件数: {fileCount}");
+            GameToolLogger.WriteLog($"总大小: {FormatFileSize(totalSize)}");
+            GameToolLogger.WriteLog("=========================================");
+            GameToolLogger.WriteLog("✅ 资源同步完成!");
+            GameToolLogger.WriteLog("=========================================");
         }
         catch (Exception ex)
         {
-            BuildLogger.WriteLog($"========================================");
-            BuildLogger.WriteLog($"❌ 资源同步失败!");
-            BuildLogger.WriteLog($"错误信息: {ex.Message}");
-            BuildLogger.WriteLog($"堆栈跟踪: {ex.StackTrace}");
-            BuildLogger.WriteLog($"========================================");
+            GameToolLogger.WriteLog($"========================================");
+            GameToolLogger.WriteLog($"❌ 资源同步失败!");
+            GameToolLogger.WriteLog($"错误信息: {ex.Message}");
+            GameToolLogger.WriteLog($"堆栈跟踪: {ex.StackTrace}");
+            GameToolLogger.WriteLog($"========================================");
             throw;
         }
     }
@@ -202,17 +202,17 @@ public partial class BuildPipelineEditor
     /// </summary>
     private static void FullSync(string currentVersion)
     {
-        BuildLogger.WriteLog("===== 执行全量更新 =====");
-        BuildLogger.WriteLog("首次打包或仅有一个版本，将进行全量同步");
+        GameToolLogger.WriteLog("===== 执行全量更新 =====");
+        GameToolLogger.WriteLog("首次打包或仅有一个版本，将进行全量同步");
 
         string sourceDir = Path.Combine(BundlesDir, currentVersion);
 
-        BuildLogger.WriteLog("正在复制资源文件...");
+        GameToolLogger.WriteLog("正在复制资源文件...");
 
         // 复制整个版本目录到服务器
         CopyDirectory(sourceDir, ServerResDir, true);
 
-        BuildLogger.WriteLog("✅ 全量更新完成");
+        GameToolLogger.WriteLog("✅ 全量更新完成");
     }
 
     /// <summary>
@@ -220,13 +220,13 @@ public partial class BuildPipelineEditor
     /// </summary>
     private static void IncrementalSync(string currentVersion, string lastVersion)
     {
-        BuildLogger.WriteLog("===== 执行增量更新 =====");
-        BuildLogger.WriteLog($"对比版本 {lastVersion} → {currentVersion}");
+        GameToolLogger.WriteLog("===== 执行增量更新 =====");
+        GameToolLogger.WriteLog($"对比版本 {lastVersion} → {currentVersion}");
 
         string currentDir = Path.Combine(BundlesDir, currentVersion);
         string lastDir = Path.Combine(BundlesDir, lastVersion);
 
-        BuildLogger.WriteLog("正在分析差异文件...");
+        GameToolLogger.WriteLog("正在分析差异文件...");
 
         // 收集差异文件
         List<string> diffFiles = new List<string>();
@@ -255,15 +255,15 @@ public partial class BuildPipelineEditor
             }
         }
 
-        BuildLogger.WriteLog($"差异文件数量: {diffFiles.Count}");
+        GameToolLogger.WriteLog($"差异文件数量: {diffFiles.Count}");
 
         if (diffFiles.Count == 0)
         {
-            BuildLogger.WriteLog("⚠️ 没有检测到差异文件，跳过更新");
+            GameToolLogger.WriteLog("⚠️ 没有检测到差异文件，跳过更新");
             return;
         }
 
-        BuildLogger.WriteLog("正在复制增量文件...");
+        GameToolLogger.WriteLog("正在复制增量文件...");
 
         // 复制差异文件到服务器
         int copiedCount = 0;
@@ -286,11 +286,11 @@ public partial class BuildPipelineEditor
             // 每复制100个文件显示一次进度
             if (copiedCount % 100 == 0)
             {
-                BuildLogger.WriteLog($"已复制: {copiedCount}/{diffFiles.Count}");
+                GameToolLogger.WriteLog($"已复制: {copiedCount}/{diffFiles.Count}");
             }
         }
 
-        BuildLogger.WriteLog($"✅ 增量更新完成，共复制 {copiedCount} 个文件");
+        GameToolLogger.WriteLog($"✅ 增量更新完成，共复制 {copiedCount} 个文件");
     }
 
     /// <summary>

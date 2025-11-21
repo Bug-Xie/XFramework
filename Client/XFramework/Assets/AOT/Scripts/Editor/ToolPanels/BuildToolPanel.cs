@@ -28,7 +28,7 @@ public class BuildToolPanel : BaseToolPanel
 
 // 构建配置
     public static string AotDllDir;
-    public static string JitDllDir ;
+    public static string JitDllDir;
     public static string OfflineModeSymbol;
     public static string AssetBundleSymbol;
     public static string AotDllsString;
@@ -42,23 +42,8 @@ public class BuildToolPanel : BaseToolPanel
 
     static BuildToolPanel()
     {
-    ProjectRoot = Directory.GetParent(Application.dataPath).FullName;
-
-// 构建配置
-     AotDllDir = Path.Combine(Application.dataPath, "JIT", "PakageAsset", "AOTDLL");
-     JitDllDir = Path.Combine(Application.dataPath, "JIT", "PakageAsset", "JITDLL");
-     OfflineModeSymbol = "RESOURCE_OFFLINE";
-     AssetBundleSymbol = "RESOURCE_ASSETBUNDLE";
-     AotDllsString = "System.Core.dll,System.dll,mscorlib.dll";
-     JitDllsString = "HotUpdate.dll";
-     // 从当前编译符号中读取EnableLog状态
-     EnableLog = GetEnableLogFromSymbols();
-     // 默认开启版本自动递增（开发阶段可在界面关闭）
-     AutoIncrementVersion = true;
-
-    // 新增的路径配置
-     BuildLogsDir = Path.Combine(ProjectRoot, "SaveAsset","Out", "BuildEditor");
-     ApkOutputDir = Path.Combine(ProjectRoot, "SaveAsset","Out" ,"BuildPlayer");
+        ProjectRoot = Directory.GetParent(Application.dataPath).FullName;
+        Defaults();
     }
 
     public override void OnGUI()
@@ -102,6 +87,7 @@ public class BuildToolPanel : BaseToolPanel
         {
             GUILayout.Label($"状态获取失败: {e.Message}", EditorStyles.miniLabel);
         }
+
         EditorGUILayout.EndVertical();
 
         // 右侧按钮
@@ -110,14 +96,17 @@ public class BuildToolPanel : BaseToolPanel
         {
             OpenBuildDirectory();
         }
+
         if (GUILayout.Button("📦 打开AB包目录", GUILayout.Width(120)))
         {
             OpenABPackagesDirectory();
         }
+
         if (GUILayout.Button("📝 打开日志目录", GUILayout.Width(120)))
         {
             OpenBuildLogsDirectory();
         }
+
         EditorGUILayout.EndVertical();
 
         EditorGUILayout.EndHorizontal();
@@ -135,9 +124,10 @@ public class BuildToolPanel : BaseToolPanel
         GUILayout.Label("📁 路径设置", EditorStyles.boldLabel);
 
         // AOT/JIT DLL目录
-        DrawPathField("AOT DLL目录:", ref AotDllDir, true);
-        DrawPathField("JIT DLL目录:", ref JitDllDir, true);
+        DrawPathField("AOTDLL目录:", ref AotDllDir, true);
+        DrawPathField("JITDLL目录:", ref JitDllDir, true);
         DrawPathField("APK输出目录:", ref ApkOutputDir, true);
+        DrawPathField("构建日志目录:", ref BuildLogsDir, true);
 
         GUILayout.Space(10);
 
@@ -160,8 +150,10 @@ public class BuildToolPanel : BaseToolPanel
 
         EditorGUILayout.BeginHorizontal();
         GUILayout.Label("当前符号:", GUILayout.Width(100));
-        var symbols = PlayerSettings.GetScriptingDefineSymbolsForGroup(EditorUserBuildSettings.selectedBuildTargetGroup);
-        GUILayout.Label(string.IsNullOrEmpty(symbols) ? "无" : symbols, EditorStyles.helpBox, GUILayout.ExpandWidth(true));
+        var symbols =
+            PlayerSettings.GetScriptingDefineSymbolsForGroup(EditorUserBuildSettings.selectedBuildTargetGroup);
+        GUILayout.Label(string.IsNullOrEmpty(symbols) ? "无" : symbols, EditorStyles.helpBox,
+            GUILayout.ExpandWidth(true));
         GUILayout.Space(30); // 与选择按钮宽度对齐
         EditorGUILayout.EndHorizontal();
 
@@ -177,6 +169,7 @@ public class BuildToolPanel : BaseToolPanel
         {
             GUI.changed = true;
         }
+
         GUILayout.Space(30);
         EditorGUILayout.EndHorizontal();
 
@@ -195,6 +188,7 @@ public class BuildToolPanel : BaseToolPanel
         {
             GUI.changed = true;
         }
+
         // 在同一行显示提示说明，使用和Toggle相同的字体样式
         var hintStyle = new GUIStyle(EditorStyles.label)
         {
@@ -235,6 +229,7 @@ public class BuildToolPanel : BaseToolPanel
         {
             ResetToDefaults();
         }
+
         EditorGUILayout.EndHorizontal();
 
         EditorGUILayout.EndVertical();
@@ -264,7 +259,9 @@ public class BuildToolPanel : BaseToolPanel
             else
             {
                 // 选择文件
-                string directory = string.IsNullOrEmpty(path) ? Application.dataPath : System.IO.Path.GetDirectoryName(path);
+                string directory = string.IsNullOrEmpty(path)
+                    ? Application.dataPath
+                    : System.IO.Path.GetDirectoryName(path);
                 string extension = System.IO.Path.GetExtension(path);
                 selectedPath = EditorUtility.OpenFilePanel($"选择{label}", directory, extension.TrimStart('.'));
             }
@@ -279,52 +276,6 @@ public class BuildToolPanel : BaseToolPanel
     }
 
     /// <summary>
-    /// 从当前编译符号中读取EnableLog状态
-    /// </summary>
-    private static bool GetEnableLogFromSymbols()
-    {
-        var targetGroup = EditorUserBuildSettings.selectedBuildTargetGroup;
-        string defines = PlayerSettings.GetScriptingDefineSymbolsForGroup(targetGroup);
-        return defines.Contains("ENABLE_LOG");
-    }
-
-    // /// <summary>
-    // /// 更新EnableLog编译符号
-    // /// </summary>
-    // private void UpdateEnableLogSymbol()
-    // {
-    //     var targetGroup = EditorUserBuildSettings.selectedBuildTargetGroup;
-    //     string defines = PlayerSettings.GetScriptingDefineSymbolsForGroup(targetGroup);
-    //     List<string> symbolList = new List<string>(defines.Split(';'));
-    //
-    //     const string ENABLE_LOG_SYMBOL = "ENABLE_LOG";
-    //
-    //     if (EnableLog)
-    //     {
-    //         // 添加ENABLE_LOG符号
-    //         if (!symbolList.Contains(ENABLE_LOG_SYMBOL))
-    //         {
-    //             symbolList.Add(ENABLE_LOG_SYMBOL);
-    //         }
-    //     }
-    //     else
-    //     {
-    //         // 移除ENABLE_LOG符号
-    //         if (symbolList.Contains(ENABLE_LOG_SYMBOL))
-    //         {
-    //             symbolList.Remove(ENABLE_LOG_SYMBOL);
-    //         }
-    //     }
-    //
-    //     // 移除空字符串
-    //     symbolList.RemoveAll(string.IsNullOrEmpty);
-    //
-    //     // 更新符号
-    //     string newDefines = string.Join(";", symbolList.ToArray());
-    //     PlayerSettings.SetScriptingDefineSymbolsForGroup(targetGroup, newDefines);
-    // }
-
-    /// <summary>
     /// 绘制离线包构建
     /// </summary>
     private void DrawOfflineBuilds()
@@ -332,8 +283,10 @@ public class BuildToolPanel : BaseToolPanel
         DrawButtonGroup(
             "完整离线包",
             "",
-            new ButtonInfo("📱 构建全量包(离线)", () => {
-                EditorApplication.delayCall += () => {
+            new ButtonInfo("📱 构建全量包(离线)", () =>
+            {
+                EditorApplication.delayCall += () =>
+                {
                     BuildPipelineEditor.BuildOfflineAPK();
                     _buildStats.RecordBuild("离线全量包");
                 };
@@ -349,15 +302,18 @@ public class BuildToolPanel : BaseToolPanel
         DrawButtonGroup(
             "基础包构建",
             "",
-            new ButtonInfo("📦 构建全量包APK(热更)", () => {
-                EditorApplication.delayCall += () => {
+            new ButtonInfo("📦 构建全量包APK(热更)", () =>
+            {
+                EditorApplication.delayCall += () =>
+                {
                     BuildPipelineEditor.BuildFullPackageAPK();
                     _buildStats.RecordBuild("热更全量包");
                 };
             }, null, true, 35),
-
-            new ButtonInfo("🗃️ 构建空包APK(热更)", () => {
-                EditorApplication.delayCall += () => {
+            new ButtonInfo("🗃️ 构建空包APK(热更)", () =>
+            {
+                EditorApplication.delayCall += () =>
+                {
                     BuildPipelineEditor.BuildNulllPackageAPK();
                     _buildStats.RecordBuild("热更空包");
                 };
@@ -369,8 +325,10 @@ public class BuildToolPanel : BaseToolPanel
         DrawButtonGroup(
             "增量更新包",
             "",
-            new ButtonInfo("🔄 构建增量包", () => {
-                EditorApplication.delayCall += () => {
+            new ButtonInfo("🔄 构建增量包", () =>
+            {
+                EditorApplication.delayCall += () =>
+                {
                     BuildPipelineEditor.BuildIncrementalPackageNoAPK();
                     _buildStats.RecordBuild("增量包");
                 };
@@ -424,7 +382,8 @@ public class BuildToolPanel : BaseToolPanel
         else
         {
             // 尝试其他可能的AB包路径
-            string[] possiblePaths = {
+            string[] possiblePaths =
+            {
                 System.IO.Path.Combine(Application.dataPath, "../AssetBundles"),
                 System.IO.Path.Combine(Application.dataPath, "../StreamingAssets"),
                 System.IO.Path.Combine(Application.streamingAssetsPath, "")
@@ -439,7 +398,8 @@ public class BuildToolPanel : BaseToolPanel
                 }
             }
 
-            EditorUtility.DisplayDialog("提示", "AB包目录不存在，可能的路径:\n- Bundles\n- AssetBundles\n- StreamingAssets\n\n请先执行资源包构建操作", "确定");
+            EditorUtility.DisplayDialog("提示",
+                "AB包目录不存在，可能的路径:\n- Bundles\n- AssetBundles\n- StreamingAssets\n\n请先执行资源包构建操作", "确定");
         }
     }
 
@@ -473,30 +433,30 @@ public class BuildToolPanel : BaseToolPanel
     {
         if (EditorUtility.DisplayDialog("重置确认", "将重置所有构建设置为默认值，是否继续？", "确认", "取消"))
         {
-
-            // 重置新增的路径配置
-            AotDllDir = Path.Combine(Application.dataPath, "JIT", "PakageAsset", "AOTDLL");
-            JitDllDir = Path.Combine(Application.dataPath, "JIT", "PakageAsset", "JITDLL");
-            OfflineModeSymbol = "RESOURCE_OFFLINE";
-            AssetBundleSymbol = "RESOURCE_ASSETBUNDLE";
-            AotDllsString = "System.Core.dll,System.dll,mscorlib.dll";
-            JitDllsString = "HotUpdate.dll";
-            EnableLog = false; // 重置为默认不启用日志
-            AutoIncrementVersion = true; // 重置为默认自动递增
-
-            BuildLogsDir = Path.Combine(ProjectRoot, "SaveAsset","Out", "BuildEditor");
-            ApkOutputDir = Path.Combine(ProjectRoot, "SaveAsset","Out" ,"BuildPlayer");
-
-            // 更新EnableLog符号
-            //UpdateEnableLogSymbol();
-
+            Defaults();
             EditorUtility.DisplayDialog("完成", "构建设置已重置为默认值", "确定");
         }
     }
 
+    private static void Defaults()
+    {
+        // 重置新增的路径配置
+        AotDllDir = Path.Combine(Application.dataPath, "JIT", "PakageAsset", "AOTDLL");
+        JitDllDir = Path.Combine(Application.dataPath, "JIT", "PakageAsset", "JITDLL");
+        OfflineModeSymbol = "RESOURCE_OFFLINE";
+        AssetBundleSymbol = "RESOURCE_ASSETBUNDLE";
+        AotDllsString = "System.Core.dll,System.dll,mscorlib.dll";
+        JitDllsString = "HotUpdate.dll";
+        EnableLog = true; // 重置为默认不启用日志
+        AutoIncrementVersion = false; // 重置为默认自动递增
+
+        BuildLogsDir = Path.Combine(ProjectRoot, "SaveAsset", "Out", "BuildEditor");
+        ApkOutputDir = Path.Combine(ProjectRoot, "SaveAsset", "Out", "BuildPlayer");
+    }
+
     #endregion
 
-    #region BuildHelper兼容方法 
+    #region BuildHelper兼容方法
 
     // 兼容原有API，直接在BuildToolPanel中提供
     public static string GetAOTDLLDir() => AotDllDir;

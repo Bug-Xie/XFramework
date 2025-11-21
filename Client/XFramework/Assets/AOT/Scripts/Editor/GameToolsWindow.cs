@@ -29,8 +29,7 @@ public class GameToolsWindow : EditorWindow
     void OnEnable()
     {
         InitializeToolPanels();
-        // 不在这里初始化样式，因为GUI.skin在OnGUI外部不可访问
-        // InitializeStyles();
+       
     }
 
     void OnDisable()
@@ -43,6 +42,7 @@ public class GameToolsWindow : EditorWindow
     {
         // 清理所有面板
         _toolPanels?.ForEach(panel => panel.OnDestroy());
+        GameToolLogger.Shutdown();
     }
 
     void OnGUI()
