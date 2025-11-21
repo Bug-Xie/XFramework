@@ -14,6 +14,7 @@
 /[Uu]ser[Ss]ettings/
 /[Yy]oo/
 /Assets/StreamingAssets/
+/SaveAsset/Out/
 *.log
 
 # By default unity supports Blender asset imports, *.blend1 blender files do not need to be commited to version control.

@@ -354,7 +354,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   yooAssetModule: {fileID: 552426477}
   hybridCLRModule: {fileID: 1874162877}
-  patchWindow: {fileID: 4607067771552420938, guid: cd3c0e69e672e0f4cb953ab81d5644e9, type: 3}
 --- !u!1 &1308511859
 GameObject:
   m_ObjectHideFlags: 0
@@ -503,7 +502,7 @@ MonoBehaviour:
   ShowSourceLink: 1
   MaxLogFileSize: 10485760
   MaxLogFileCount: 10
-  LogFileDirectory: SaveAsset/Logger/Out
+  LogFileDirectory: SaveAsset/Out/Logger
 --- !u!1 &1874162876
 GameObject:
   m_ObjectHideFlags: 0

@@ -73,7 +73,7 @@ public class PatchWindow : MonoBehaviour
     public void OnStepChange(string tips)
     {
         _tips.text = tips;
-        Debug.Log(tips);
+        Log.Info(tips);
     }
 
     /// <summary>
@@ -108,7 +108,7 @@ public class PatchWindow : MonoBehaviour
         ShowMessageBox(errorMessage, () =>
         {
             // 错误发生时，可以选择重试或退出应用
-            Debug.LogError($"Error occurred: {errorMessage}");
+            Log.Error($"Error occurred: {errorMessage}");
             // 这里可以根据需要添加重试逻辑
         });
     }

@@ -31,6 +31,7 @@ public class HybridCLRModule : MonoBehaviour
     {
         try
         {
+            Log.Info("开始HybridCLR更新流程");
             OnStepChange?.Invoke("开始HybridCLR更新...");
 
             // 加载AOT元数据
@@ -42,16 +43,18 @@ public class HybridCLRModule : MonoBehaviour
                 return false;
 
             OnStepChange?.Invoke("HybridCLR更新完成");
+            Log.Info("HybridCLR更新流程完成");
 
             // 进入主入口
             if (!await EnterMainEntry())
                 return false;
 
+            Log.Info("HybridCLR完整流程执行成功");
             return true;
         }
         catch (Exception e)
         {
-            Debug.LogError($"HybridCLR更新失败: {e.Message}");
+            Log.Error($"HybridCLR更新失败: {e.Message}");
             OnError?.Invoke($"HybridCLR更新失败: {e.Message}");
             return false;
         }
@@ -65,7 +68,7 @@ public class HybridCLRModule : MonoBehaviour
 #if UNITY_EDITOR
         // 编辑器模式下跳过AOT元数据加载
         OnStepChange?.Invoke("编辑器模式跳过AOT元数据加载");
-        Debug.Log("编辑器模式跳过AOT元数据加载");
+        Log.Info("编辑器模式跳过AOT元数据加载");
         await UniTask.Yield();
         return true;
 #else
@@ -73,7 +76,7 @@ public class HybridCLRModule : MonoBehaviour
 
         var package = YooAssets.GetPackage(packageName);
         var locations = package.GetAssetInfos("AOTDLL");
-        Debug.Log($"开始加载 {locations.Length} 个AOT DLL文件");
+        Log.Info($"开始加载 {locations.Length} 个AOT DLL文件");
 
         foreach (var location in locations)
         {
@@ -91,31 +94,31 @@ public class HybridCLRModule : MonoBehaviour
 
                     if (err == LoadImageErrorCode.OK)
                     {
-                        Debug.Log($"成功加载并注册AOT元数据: {location.Address}, mode: {mode}");
+                        Log.Info($"成功加载并注册AOT元数据: {location.Address}, mode: {mode}");
                     }
                     else
                     {
-                        Debug.LogError($"注册AOT元数据失败: {location.Address}, 错误码: {err}");
+                        Log.Error($"注册AOT元数据失败: {location.Address}, 错误码: {err}");
                         OnError?.Invoke($"注册AOT元数据失败: {location.Address}");
                         return false;
                     }
                 }
                 else
                 {
-                    Debug.LogError($"加载AOT DLL失败: {location.Address}");
+                    Log.Error($"加载AOT DLL失败: {location.Address}");
                     OnError?.Invoke($"加载AOT DLL失败: {location.Address}");
                     return false;
                 }
             }
             catch (Exception e)
             {
-                Debug.LogError($"加载AOT元数据异常: {location.Address}, {e.Message}");
+                Log.Error($"加载AOT元数据异常: {location.Address}, {e.Message}");
                 OnError?.Invoke($"加载AOT元数据异常: {location.Address}");
                 return false;
             }
         }
 
-        Debug.Log($"AOT元数据加载完成，共 {_aotHandles.Count} 个文件");
+        Log.Info($"AOT元数据加载完成，共 {_aotHandles.Count} 个文件");
         return true;
 #endif
     }
@@ -135,11 +138,11 @@ public class HybridCLRModule : MonoBehaviour
         if (assembly != null)
         {
             _hotUpdateAssembly = assembly;
-            Debug.Log($"编辑器模式HotUpdateDLL加载成功: {hotUpdateAssemblyName}");
+            Log.Info($"编辑器模式HotUpdateDLL加载成功: {hotUpdateAssemblyName}");
         }
         else
         {
-            Debug.LogWarning($"编辑器模式找不到HotUpdateDLL: {hotUpdateAssemblyName}");
+            Log.Warn($"编辑器模式找不到HotUpdateDLL: {hotUpdateAssemblyName}");
             OnError?.Invoke($"编辑器模式找不到HotUpdateDLL: {hotUpdateAssemblyName}");
             return false;
         }
@@ -152,7 +155,7 @@ public class HybridCLRModule : MonoBehaviour
         // 非编辑器模式：使用YooAsset加载资源
         var package = YooAssets.GetPackage(packageName);
         var locations = package.GetAssetInfos("JITDLL");
-        Debug.Log($"开始加载 {locations.Length} 个JITDLL文件");
+        Log.Info($"开始加载 {locations.Length} 个JITDLL文件");
 
         foreach (var location in locations)
         {
@@ -170,27 +173,27 @@ public class HybridCLRModule : MonoBehaviour
                     if (location.Address.Contains(hotUpdateAssemblyName))
                     {
                         _hotUpdateAssembly = loadedAssembly;
-                        Debug.Log($"设置主热更程序集: {location.Address}");
+                        Log.Info($"设置主热更程序集: {location.Address}");
                     }
 
-                    Debug.Log($"成功加载JIT DLL: {location.Address}");
+                    Log.Info($"成功加载JIT DLL: {location.Address}");
                 }
                 else
                 {
-                    Debug.LogError($"加载JIT DLL资源失败: {location.Address}");
+                    Log.Error($"加载JIT DLL资源失败: {location.Address}");
                     OnError?.Invoke($"加载JIT DLL资源失败: {location.Address}");
                     return false;
                 }
             }
             catch (Exception e)
             {
-                Debug.LogError($"加载程序集失败: {location.Address}, 错误: {e.Message}");
+                Log.Error($"加载程序集失败: {location.Address}, 错误: {e.Message}");
                 OnError?.Invoke($"加载程序集失败: {location.Address}");
                 return false;
             }
         }
 
-        Debug.Log($"JIT DLL加载完成，共 {_jitHandles.Count} 个文件");
+        Log.Info($"JIT DLL加载完成，共 {_jitHandles.Count} 个文件");
         return true;
 #endif
     }
@@ -204,7 +207,7 @@ public class HybridCLRModule : MonoBehaviour
 
         if (_hotUpdateAssembly == null)
         {
-            Debug.LogError("热更程序集未加载，无法进入主入口");
+            Log.Error("热更程序集未加载，无法进入主入口");
             OnError?.Invoke("热更程序集未加载，无法进入主入口");
             return false;
         }
@@ -214,7 +217,7 @@ public class HybridCLRModule : MonoBehaviour
             Type type = _hotUpdateAssembly.GetType(mainClassName);
             if (type == null)
             {
-                Debug.LogError($"找不到主脚本类型: {mainClassName}");
+                Log.Error($"找不到主脚本类型: {mainClassName}");
                 OnError?.Invoke($"找不到主脚本类型: {mainClassName}");
                 return false;
             }
@@ -222,12 +225,12 @@ public class HybridCLRModule : MonoBehaviour
             MethodInfo method = type.GetMethod(mainMethodName, BindingFlags.Public | BindingFlags.Static);
             if (method == null)
             {
-                Debug.LogError($"找不到主方法: {mainMethodName} 在类型 {mainClassName} 中");
+                Log.Error($"找不到主方法: {mainMethodName} 在类型 {mainClassName} 中");
                 OnError?.Invoke($"找不到主方法: {mainMethodName}");
                 return false;
             }
 
-            Debug.Log($"调用热更入口: {mainClassName}.{mainMethodName}");
+            Log.Info($"调用热更入口: {mainClassName}.{mainMethodName}");
 
             if (method.ReturnType == typeof(UniTask))
             {
@@ -251,7 +254,7 @@ public class HybridCLRModule : MonoBehaviour
         }
         catch (Exception e)
         {
-            Debug.LogError($"执行热更入口失败: {e}");
+            Log.Error($"执行热更入口失败: {e}");
             OnError?.Invoke($"执行热更入口失败: {e.Message}");
             return false;
         }
@@ -262,6 +265,7 @@ public class HybridCLRModule : MonoBehaviour
     /// </summary>
     public void ReleaseResources()
     {
+        Log.Info("开始释放HybridCLR资源");
         // 释放所有资源句柄
         foreach (var handle in _aotHandles)
         {
@@ -278,7 +282,7 @@ public class HybridCLRModule : MonoBehaviour
         _aotHandles.Clear();
         _jitHandles.Clear();
 
-        Debug.Log("HybridCLRManager 资源已释放");
+        Log.Info("HybridCLRManager 资源已释放");
     }
 
     void OnDestroy()

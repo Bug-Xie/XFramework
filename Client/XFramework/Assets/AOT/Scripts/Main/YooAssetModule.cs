@@ -9,8 +9,9 @@ using UnityEditor;
 
 public class YooAssetModule : MonoBehaviour
 {
-    [Header("YooAsset配置")]
-    [SerializeField] private string packageName = "DefaultPackage";
+    [Header("YooAsset配置")] [SerializeField]
+    private string packageName = "DefaultPackage";
+
     [SerializeField] private string packageURL = "https://192.168.1.167:8084/XFramework";
 
     // 事件
@@ -29,7 +30,7 @@ public class YooAssetModule : MonoBehaviour
     private EPlayMode GetPlayMode()
     {
 #if UNITY_EDITOR
-        return  EPlayMode.EditorSimulateMode; // 编辑器下使用配置的模式
+        return EPlayMode.EditorSimulateMode; // 编辑器下使用配置的模式
 #else
     #if RESOURCE_OFFLINE
         return EPlayMode.OfflinePlayMode;
@@ -46,37 +47,32 @@ public class YooAssetModule : MonoBehaviour
     {
         try
         {
-            Debug.Log(00);
+            Log.Info("开始YooAsset初始化和更新流程");
             OnStepChange?.Invoke("初始化YooAsset...");
-            Debug.Log(000);
             YooAssets.Initialize();
-            Debug.Log(0);
+            Log.Info("YooAsset系统初始化完成");
             // 初始化资源包
             if (!await InitializePackage())
                 return false;
-            Debug.Log(1);
             // 请求资源版本
             if (!await RequestPackageVersion())
                 return false;
-            Debug.Log(2);
             // 更新资源清单
             if (!await UpdatePackageManifest())
                 return false;
-            Debug.Log(3);
             // 检查并下载更新文件
             if (!await CheckAndDownloadFiles())
                 return false;
-            Debug.Log(4);
             // 清理缓存文件
             await ClearCacheFiles();
-            Debug.Log(5);
             OnStepChange?.Invoke("YooAsset更新完成");
             FinishUpdate();
+            Log.Info("YooAsset初始化和更新流程全部完成");
             return true;
         }
         catch (Exception e)
         {
-            Debug.LogError($"YooAsset更新失败: {e.Message}");
+            Log.Error($"YooAsset更新失败: {e.Message}");
             OnError?.Invoke($"YooAsset更新失败: {e.Message}");
             return false;
         }
@@ -88,13 +84,19 @@ public class YooAssetModule : MonoBehaviour
     private async UniTask<bool> InitializePackage()
     {
         OnStepChange?.Invoke("初始化资源包!");
-
         var currentPlayMode = GetPlayMode();
-
+        Log.Info($"当前运行模式: {currentPlayMode}");
         // 创建资源包裹类
         _package = YooAssets.TryGetPackage(packageName);
         if (_package == null)
+        {
             _package = YooAssets.CreatePackage(packageName);
+            Log.Info($"创建新的资源包: {packageName}");
+        }
+        else
+        {
+            Log.Info($"使用已存在的资源包: {packageName}");
+        }
 
         InitializationOperation initializationOperation = null;
 
@@ -104,14 +106,16 @@ public class YooAssetModule : MonoBehaviour
             var buildResult = EditorSimulateModeHelper.SimulateBuild(packageName);
             var packageRoot = buildResult.PackageRootDirectory;
             var createParameters = new EditorSimulateModeParameters();
-            createParameters.EditorFileSystemParameters = FileSystemParameters.CreateDefaultEditorFileSystemParameters(packageRoot);
+            createParameters.EditorFileSystemParameters =
+                FileSystemParameters.CreateDefaultEditorFileSystemParameters(packageRoot);
             initializationOperation = _package.InitializeAsync(createParameters);
         }
         // 单机运行模式
         else if (currentPlayMode == EPlayMode.OfflinePlayMode)
         {
             var createParameters = new OfflinePlayModeParameters();
-            createParameters.BuildinFileSystemParameters = FileSystemParameters.CreateDefaultBuildinFileSystemParameters();
+            createParameters.BuildinFileSystemParameters =
+                FileSystemParameters.CreateDefaultBuildinFileSystemParameters();
             initializationOperation = _package.InitializeAsync(createParameters);
         }
         // 联机运行模式
@@ -120,7 +124,8 @@ public class YooAssetModule : MonoBehaviour
             IRemoteServices remoteServices = new RemoteServices(packageURL, packageURL);
             var createParameters = new HostPlayModeParameters();
             createParameters.BuildinFileSystemParameters = null;
-            createParameters.CacheFileSystemParameters = FileSystemParameters.CreateDefaultCacheFileSystemParameters(remoteServices);
+            createParameters.CacheFileSystemParameters =
+                FileSystemParameters.CreateDefaultCacheFileSystemParameters(remoteServices);
             initializationOperation = _package.InitializeAsync(createParameters);
         }
         // WebGL运行模式
@@ -130,11 +135,13 @@ public class YooAssetModule : MonoBehaviour
             var createParameters = new WebPlayModeParameters();
             string packageRoot = $"{WeChatWASM.WX.env.USER_DATA_PATH}/__GAME_FILE_CACHE";
             IRemoteServices remoteServices = new RemoteServices(packageURL, packageURL);
-            createParameters.WebServerFileSystemParameters = WechatFileSystemCreater.CreateFileSystemParameters(packageRoot, remoteServices);
+            createParameters.WebServerFileSystemParameters =
+ WechatFileSystemCreater.CreateFileSystemParameters(packageRoot, remoteServices);
             initializationOperation = _package.InitializeAsync(createParameters);
 #else
             var createParameters = new WebPlayModeParameters();
-            createParameters.WebServerFileSystemParameters = FileSystemParameters.CreateDefaultWebServerFileSystemParameters();
+            createParameters.WebServerFileSystemParameters =
+                FileSystemParameters.CreateDefaultWebServerFileSystemParameters();
             initializationOperation = _package.InitializeAsync(createParameters);
 #endif
         }
@@ -143,7 +150,7 @@ public class YooAssetModule : MonoBehaviour
 
         if (initializationOperation.Status != EOperationStatus.Succeed)
         {
-            Debug.LogWarning($"初始化资源包失败: {initializationOperation.Error}");
+            Log.Warn($"初始化资源包失败: {initializationOperation.Error}");
             OnError?.Invoke("初始化资源包失败!");
             return false;
         }
@@ -163,12 +170,12 @@ public class YooAssetModule : MonoBehaviour
 
         if (operation.Status != EOperationStatus.Succeed)
         {
-            Debug.LogWarning($"请求资源版本失败: {operation.Error}");
+            Log.Warn($"请求资源版本失败: {operation.Error}");
             OnError?.Invoke("请求资源版本失败!");
             return false;
         }
 
-        Debug.Log($"Request package version: {operation.PackageVersion}");
+        Log.Info($"Request package version: {operation.PackageVersion}");
         _packageVersion = operation.PackageVersion;
         return true;
     }
@@ -185,11 +192,10 @@ public class YooAssetModule : MonoBehaviour
 
         if (operation.Status != EOperationStatus.Succeed)
         {
-            Debug.LogWarning($"更新资源清单失败: {operation.Error}");
+            Log.Warn($"更新资源清单失败: {operation.Error}");
             OnError?.Invoke("更新资源清单失败!");
             return false;
         }
-
         return true;
     }
 
@@ -206,13 +212,14 @@ public class YooAssetModule : MonoBehaviour
 
         if (_downloader.TotalDownloadCount == 0)
         {
-            Debug.Log("No files to download!");
+            Log.Info("No files to download!");
             return true;
         }
 
         // 发现更新文件，直接开始下载（不等待用户点击）
         int totalDownloadCount = _downloader.TotalDownloadCount;
         long totalDownloadBytes = _downloader.TotalDownloadBytes;
+        Log.Info($"发现需要下载的文件: {totalDownloadCount}个, 总大小: {totalDownloadBytes}字节");
 
         OnFoundUpdateFiles?.Invoke(totalDownloadCount, totalDownloadBytes);
 
@@ -235,7 +242,7 @@ public class YooAssetModule : MonoBehaviour
 
         _downloader.DownloadErrorCallback = (errorData) =>
         {
-            Debug.LogError($"下载文件失败: {errorData.FileName}, {errorData.ErrorInfo}");
+            Log.Error($"下载文件失败: {errorData.FileName}, {errorData.ErrorInfo}");
             OnError?.Invoke($"下载文件失败: {errorData.FileName}");
         };
 
@@ -271,7 +278,7 @@ public class YooAssetModule : MonoBehaviour
         // 设置默认的资源包
         var gamePackage = YooAssets.GetPackage(packageName);
         YooAssets.SetDefaultPackage(gamePackage);
-        Debug.Log("YooAsset更新完成");
+        Log.Info("YooAsset更新完成");
     }
 
     /// <summary>

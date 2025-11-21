@@ -18,7 +18,7 @@ MonoBehaviour:
   Packages:
   - PackageName: DefaultPackage
     PackageDesc: 
-    EnableAddressable: 0
+    EnableAddressable: 1
     SupportExtensionless: 1
     LocationToLower: 0
     IncludeAssetGUID: 0
@@ -38,7 +38,7 @@ MonoBehaviour:
         FilterRuleName: CollectAll
         AssetTags: 
         UserData: 
-    - GroupName: JITDLL
+    - GroupName: Dll
       GroupDesc: "\u70ED\u66F4\u903B\u8F91\u4EE3\u7801"
       AssetTags: 
       ActiveRuleName: EnableGroup
@@ -49,18 +49,13 @@ MonoBehaviour:
         AddressRuleName: AddressByFileName
         PackRuleName: PackDirectory
         FilterRuleName: CollectAll
-        AssetTags: 
+        AssetTags: JITDLL
         UserData: 
-    - GroupName: AOTDLL
-      GroupDesc: "\u70ED\u66F4AOTDLL"
-      AssetTags: 
-      ActiveRuleName: EnableGroup
-      Collectors:
-      - CollectPath: Assets/Jit/PakageAsset/AOTDLL
+      - CollectPath: Assets/JIT/PakageAsset/AOTDLL
         CollectorGUID: 75a6319618099ad4081d60a046f2bc77
         CollectorType: 0
         AddressRuleName: AddressByFileName
         PackRuleName: PackDirectory
         FilterRuleName: CollectAll
-        AssetTags: 
+        AssetTags: AOTDLL
         UserData: 

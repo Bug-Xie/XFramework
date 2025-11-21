@@ -23,7 +23,15 @@ using System.IO;
 
             // 生成APK名称
             string buildType = apkName;
-            string outputPath = $"Build/Android/{buildType}_{currentVersion}.apk";
+            // 使用可配置的输出目录
+            string outputDir = BuildToolPanel.GetApkOutputDir();
+            if (!Directory.Exists(outputDir))
+            {
+                Directory.CreateDirectory(outputDir);
+                BuildLogger.WriteLog($"创建APK输出目录: {outputDir}");
+            }
+            string outputPath = Path.Combine(outputDir, $"{buildType}_{currentVersion}.apk");
+            BuildLogger.WriteLog($"APK输出路径: {outputPath}");
 
             // 配置构建选项
             var options = new BuildPlayerOptions

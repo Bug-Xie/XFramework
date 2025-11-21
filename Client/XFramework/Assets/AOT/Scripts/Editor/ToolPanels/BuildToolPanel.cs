@@ -40,6 +40,7 @@ public class BuildToolPanel : BaseToolPanel
     public static string SeverSyncScriptPath;
     public static string LogPath;
     public static string BuildLogsDir;
+    public static string ApkOutputDir;
 
     static BuildToolPanel()
     {
@@ -48,7 +49,7 @@ public class BuildToolPanel : BaseToolPanel
 // 构建配置
      AotDllDir = Path.Combine(Application.dataPath, "JIT", "PakageAsset", "AOTDLL");
      JitDllDir = Path.Combine(Application.dataPath, "JIT", "PakageAsset", "JITDLL");
-     VersionFilePath = Path.Combine(ProjectRoot, "SaveAsset", "BuildEditor", "In", "Buildversion.txt");
+     VersionFilePath = Path.Combine(ProjectRoot, "SaveAsset","In", "BuildEditor", "Buildversion.txt");
      OfflineModeSymbol = "RESOURCE_OFFLINE";
      AssetBundleSymbol = "RESOURCE_ASSETBUNDLE";
      AotDllsString = "System.Core.dll,System.dll,mscorlib.dll";
@@ -56,10 +57,11 @@ public class BuildToolPanel : BaseToolPanel
 
     // 新增的路径配置
      GitBashPath = @"C:\Program Files\Git\bin\bash.exe";
-     BuildCleanScriptPath = Path.Combine(ProjectRoot, "SaveAsset", "BuildEditor", "In", "BuildCleanSeverRes.sh");
-    SeverSyncScriptPath = Path.Combine(ProjectRoot, "SaveAsset", "BuildEditor", "In", "SeverSyncRes.sh");
-     LogPath = Path.Combine(ProjectRoot, "SaveAsset", "BuildEditor", "Out", "sync_log.txt");
-     BuildLogsDir = Path.Combine(ProjectRoot, "SaveAsset", "BuildEditor", "Out");
+     BuildCleanScriptPath = Path.Combine(ProjectRoot, "SaveAsset", "In","BuildEditor",  "BuildCleanSeverRes.sh");
+     SeverSyncScriptPath = Path.Combine(ProjectRoot, "SaveAsset", "In","BuildEditor",  "SeverSyncRes.sh");
+     LogPath = Path.Combine(ProjectRoot, "SaveAsset", "Out","BuildEditor",  "sync_log.txt");
+     BuildLogsDir = Path.Combine(ProjectRoot, "SaveAsset","Out", "BuildEditor");
+     ApkOutputDir = Path.Combine(ProjectRoot, "SaveAsset","Out" ,"BuildPlayer");
     }
 
     public override void OnGUI()
@@ -115,6 +117,10 @@ public class BuildToolPanel : BaseToolPanel
         {
             OpenABPackagesDirectory();
         }
+        if (GUILayout.Button("📝 打开日志目录", GUILayout.Width(120)))
+        {
+            OpenBuildLogsDirectory();
+        }
         EditorGUILayout.EndVertical();
 
         EditorGUILayout.EndHorizontal();
@@ -135,6 +141,7 @@ public class BuildToolPanel : BaseToolPanel
         DrawPathField("AOT DLL目录:", ref AotDllDir, true);
         DrawPathField("JIT DLL目录:", ref JitDllDir, true);
         DrawPathField("版本文件路径:", ref VersionFilePath, false);
+        DrawPathField("APK输出目录:", ref ApkOutputDir, true);
 
         GUILayout.Space(5);
 
@@ -255,6 +262,7 @@ public class BuildToolPanel : BaseToolPanel
             new ButtonInfo("📱 构建全量包(离线)", () => {
                 BuildPipelineEditor.BuildOfflineAPK();
                 _buildStats.RecordBuild("离线全量包");
+                GUIUtility.ExitGUI(); // 避免GUI布局错误
             }, null, true, 35)
         );
     }
@@ -270,11 +278,13 @@ public class BuildToolPanel : BaseToolPanel
             new ButtonInfo("📦 构建全量包APK(热更)", () => {
                 BuildPipelineEditor.BuildFullPackageAPK();
                 _buildStats.RecordBuild("热更全量包");
+                GUIUtility.ExitGUI(); // 避免GUI布局错误
             }, null, true, 35),
 
             new ButtonInfo("🗃️ 构建空包APK(热更)", () => {
                 BuildPipelineEditor.BuildNulllPackageAPK();
                 _buildStats.RecordBuild("热更空包");
+                GUIUtility.ExitGUI(); // 避免GUI布局错误
             }, null, true, 35)
         );
 
@@ -286,37 +296,59 @@ public class BuildToolPanel : BaseToolPanel
             new ButtonInfo("🔄 构建增量包", () => {
                 BuildPipelineEditor.BuildIncrementalPackageNoAPK();
                 _buildStats.RecordBuild("增量包");
+                GUIUtility.ExitGUI(); // 避免GUI布局错误
             }, null, true, 35)
         );
     }
 
     #region 私有方法
 
+    /// <summary>
+    /// 直接打开目录（进入目录内部，而非选中目录）
+    /// </summary>
+    private void OpenDirectoryDirectly(string path)
+    {
+        string fullPath = System.IO.Path.GetFullPath(path);
+        // 使用系统命令直接打开目录
+        System.Diagnostics.Process.Start("explorer.exe", fullPath);
+    }
+
     private void OpenBuildDirectory()
     {
-        string buildPath = System.IO.Path.GetFullPath("Build");
+        string buildPath = System.IO.Path.GetFullPath(ApkOutputDir);
         if (System.IO.Directory.Exists(buildPath))
         {
-            EditorUtility.RevealInFinder(buildPath);
+            OpenDirectoryDirectly(buildPath);
         }
         else
         {
-            EditorUtility.DisplayDialog("提示", "构建目录不存在，请先执行构建操作", "确定");
+            if (EditorUtility.DisplayDialog("提示", $"构建目录不存在:\n{buildPath}\n\n是否创建该目录？", "创建", "取消"))
+            {
+                try
+                {
+                    System.IO.Directory.CreateDirectory(buildPath);
+                    OpenDirectoryDirectly(buildPath);
+                }
+                catch (System.Exception e)
+                {
+                    EditorUtility.DisplayDialog("错误", $"创建构建目录失败: {e.Message}", "确定");
+                }
+            }
         }
     }
 
     private void OpenABPackagesDirectory()
     {
-        string abPath = System.IO.Path.Combine(Application.dataPath, "../AssetBundles");
+        string abPath = System.IO.Path.GetFullPath(System.IO.Path.Combine(Application.dataPath, "../Bundles"));
         if (System.IO.Directory.Exists(abPath))
         {
-            EditorUtility.RevealInFinder(abPath);
+            OpenDirectoryDirectly(abPath);
         }
         else
         {
             // 尝试其他可能的AB包路径
             string[] possiblePaths = {
-                System.IO.Path.Combine(Application.dataPath, "../Bundles"),
+                System.IO.Path.Combine(Application.dataPath, "../AssetBundles"),
                 System.IO.Path.Combine(Application.dataPath, "../StreamingAssets"),
                 System.IO.Path.Combine(Application.streamingAssetsPath, "")
             };
@@ -325,12 +357,37 @@ public class BuildToolPanel : BaseToolPanel
             {
                 if (System.IO.Directory.Exists(path))
                 {
-                    EditorUtility.RevealInFinder(path);
+                    OpenDirectoryDirectly(path);
                     return;
                 }
             }
 
-            EditorUtility.DisplayDialog("提示", "AB包目录不存在，可能的路径:\n- AssetBundles\n- Bundles\n- StreamingAssets\n\n请先执行资源包构建操作", "确定");
+            EditorUtility.DisplayDialog("提示", "AB包目录不存在，可能的路径:\n- Bundles\n- AssetBundles\n- StreamingAssets\n\n请先执行资源包构建操作", "确定");
+        }
+    }
+
+    private void OpenBuildLogsDirectory()
+    {
+        string logsPath = BuildToolPanel.GetBuildLogsDir();
+        if (System.IO.Directory.Exists(logsPath))
+        {
+            OpenDirectoryDirectly(logsPath);
+        }
+        else
+        {
+            // 如果目录不存在，询问是否创建
+            if (EditorUtility.DisplayDialog("提示", $"日志目录不存在:\n{logsPath}\n\n是否创建该目录？", "创建", "取消"))
+            {
+                try
+                {
+                    System.IO.Directory.CreateDirectory(logsPath);
+                    OpenDirectoryDirectly(logsPath);
+                }
+                catch (System.Exception e)
+                {
+                    EditorUtility.DisplayDialog("错误", $"创建日志目录失败: {e.Message}", "确定");
+                }
+            }
         }
     }
 
@@ -362,18 +419,19 @@ public class BuildToolPanel : BaseToolPanel
             // 重置新增的路径配置
             AotDllDir = Path.Combine(Application.dataPath, "JIT", "PakageAsset", "AOTDLL");
             JitDllDir = Path.Combine(Application.dataPath, "JIT", "PakageAsset", "JITDLL");
-            VersionFilePath = Path.Combine(ProjectRoot, "SaveAsset", "BuildEditor", "In", "Buildversion.txt");
+            VersionFilePath = Path.Combine(ProjectRoot, "SaveAsset","In", "BuildEditor", "Buildversion.txt");
             OfflineModeSymbol = "RESOURCE_OFFLINE";
             AssetBundleSymbol = "RESOURCE_ASSETBUNDLE";
             AotDllsString = "System.Core.dll,System.dll,mscorlib.dll";
             JitDllsString = "HotUpdate.dll";
 
             GitBashPath = @"C:\Program Files\Git\bin\bash.exe";
-            BuildCleanScriptPath = Path.Combine(ProjectRoot, "SaveAsset", "BuildEditor", "In", "BuildCleanSeverRes.sh");
-            SeverSyncScriptPath = Path.Combine(ProjectRoot, "SaveAsset", "BuildEditor", "In", "SeverSyncRes.sh");
-            LogPath = Path.Combine(ProjectRoot, "SaveAsset", "BuildEditor", "Out", "sync_log.txt");
-            BuildLogsDir = Path.Combine(ProjectRoot, "SaveAsset", "BuildEditor", "Out");
-            
+            BuildCleanScriptPath = Path.Combine(ProjectRoot, "SaveAsset", "In","BuildEditor",  "BuildCleanSeverRes.sh");
+            SeverSyncScriptPath = Path.Combine(ProjectRoot, "SaveAsset", "In","BuildEditor",  "SeverSyncRes.sh");
+            LogPath = Path.Combine(ProjectRoot, "SaveAsset", "Out","BuildEditor",  "sync_log.txt");
+            BuildLogsDir = Path.Combine(ProjectRoot, "SaveAsset","Out", "BuildEditor");
+            ApkOutputDir = Path.Combine(ProjectRoot, "SaveAsset","Out" ,"BuildPlayer");
+
             EditorUtility.DisplayDialog("完成", "构建设置已重置为默认值", "确定");
         }
     }
@@ -410,6 +468,7 @@ public class BuildToolPanel : BaseToolPanel
     public static string GetSeverSyncScriptPath() => SeverSyncScriptPath;
     public static string GetLogPath() => LogPath;
     public static string GetBuildLogsDir() => BuildLogsDir;
+    public static string GetApkOutputDir() => ApkOutputDir;
 
     #endregion
 
