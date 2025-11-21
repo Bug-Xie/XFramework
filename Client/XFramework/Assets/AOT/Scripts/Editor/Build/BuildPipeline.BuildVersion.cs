@@ -3,59 +3,14 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using UnityEditor;
 using UnityEngine;
-using System.IO;
-using System.Collections.Generic;
 
 public partial class BuildPipelineEditor
 {
     /// <summary>
-    /// 读取所有版本号（如apk=1.2.3, hotfix=1.2.7）
-    /// </summary>
-    public static Dictionary<string, string> ReadAllVersions()
-    {
-        var dict = new Dictionary<string, string>();
-        if (!File.Exists(BuildToolPanel.VersionFilePath_Static))
-            return dict;
-        foreach (var line in File.ReadAllLines(BuildToolPanel.VersionFilePath_Static))
-        {
-            var parts = line.Split('=');
-            if (parts.Length == 2)
-                dict[parts[0].Trim()] = parts[1].Trim();
-        }
-
-        return dict;
-    }
-
-    public static string GetVersion(string key)
-    {
-        var dict = ReadAllVersions();
-        return dict.ContainsKey(key) ? dict[key] : "1.0.0";
-    }
-
-    /// <summary>
-    /// 写入所有版本号到version.txt
-    /// </summary>
-    public static void WriteAllVersions(Dictionary<string, string> dict)
-    {
-        var lines = dict.Select(kv => $"{kv.Key}={kv.Value}");
-        File.WriteAllLines(BuildToolPanel.VersionFilePath_Static, lines);
-    }
-
-    /// <summary>
-    /// 设置指定类型的版本号并写入文件
-    /// </summary>
-    public static void SetVersion(string key, string version)
-    {
-        var dict = ReadAllVersions();
-        dict[key] = version;
-        WriteAllVersions(dict);
-    }
-
-    /// <summary>
     /// 计算下一个版本号
     /// </summary>
     /// <param name="currentVersion">当前版本号</param>
-    /// <param name="isFullBuild">true=次版本号+1，false=修订号+1</param>
+    /// <param name="isFullBuild">true=主版本号+1，false=修订号+1</param>
     public static string GetNextVersion(string currentVersion, bool isFullBuild)
     {
         var match = Regex.Match(currentVersion, @"^(\d+)\.(\d+)\.(\d+)$");
@@ -74,7 +29,7 @@ public partial class BuildPipelineEditor
         }
         else
         {
-            if (patch >= 99) // 假设修订号最大为999
+            if (patch >= 99) // 假设修订号最大为99
             {
                 patch = 0;
                 minor++;
@@ -87,7 +42,6 @@ public partial class BuildPipelineEditor
 
         return $"{major}.{minor}.{patch}";
     }
-
 
     /// <summary>
     /// 设置编译符号（宏定义），用于区分不同构建模式

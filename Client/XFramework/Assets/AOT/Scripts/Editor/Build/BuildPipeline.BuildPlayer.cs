@@ -11,13 +11,15 @@ using System.IO;
         /// <summary>
         /// 构建APK包
         /// </summary>
-        /// <param name="includeAllResources">true=全量包，false=核心包</param>
+        /// <param name="apkName">APK名称前缀</param>
         public static void BuildPlayer(String apkName)
         {
             BuildLogger.WriteLog("开始APK构建...");
             BuildLogger.WriteLog($"构建类型: 全量包");
-            // 读取apk版本号
-            string currentVersion = GetVersion("apk");
+
+            // 从 PlayerSettings 读取版本号
+            string currentVersion = PlayerSettings.bundleVersion;
+
             // 确保资源刷新
             AssetDatabase.Refresh();
 

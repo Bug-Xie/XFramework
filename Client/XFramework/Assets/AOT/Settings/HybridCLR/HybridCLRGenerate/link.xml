@@ -18,8 +18,6 @@
     <type fullname="UnityEngine.SceneManagement.LocalPhysicsMode" preserve="all" />
     <type fullname="UnityEngine.Time" preserve="all" />
   </assembly>
-  <!-- 保护Audio模块 -->
-  <assembly fullname="UnityEngine.AudioModule" preserve="all"/>
   <assembly fullname="YooAsset">
     <type fullname="YooAsset.SceneHandle" preserve="all" />
     <type fullname="YooAsset.YooAssets" preserve="all" />

@@ -1,89 +1,362 @@
 using System;
-using UnityEngine;
 using System.IO;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEditor;
 
+public partial class BuildPipelineEditor
+{
+    // 服务器资源根目录配置
+    private const string SERVER_RES_ROOT = "C:/MyPart/Work/UnityHub/XFramework/Server/nginx-1.28.0/html/XFramework/Res";
+    private const string PLATFORM = "Android";
 
-    public partial class BuildPipelineEditor
+    // 完整的服务器资源目录路径
+    private static string ServerResDir => Path.Combine(SERVER_RES_ROOT, PLATFORM);
+    // Bundles 源目录路径
+    private static string BundlesDir => Path.Combine(BuildToolPanel.GetProjectRoot(), "Bundles", PLATFORM, "DefaultPackage");
+
+    /// <summary>
+    /// 全量同步：先清理再同步
+    /// </summary>
+    static void BuildFullSeverSync()
     {
-        static void BuildFullSeverSync()
-        {
-            CleanSeverRes();
-            SeverSyncRes();
-        }
-        
-        static void BuildSeverSync()
-        {
-            SeverSyncRes();
-        }
+        CleanSeverRes();
+        SeverSyncRes();
+    }
 
-        static void SeverSyncRes()
-        {
-            string gitBashPath = BuildToolPanel.GetGitBashPath();
-            string scriptPath = BuildToolPanel.GetSeverSyncScriptPath();
-            BuildLogger.WriteLog("脚本路径: " + scriptPath);
+    /// <summary>
+    /// 增量同步：只同步资源
+    /// </summary>
+    static void BuildSeverSync()
+    {
+        SeverSyncRes();
+    }
 
-            var process = new System.Diagnostics.Process
+    /// <summary>
+    /// 清理服务器资源目录
+    /// </summary>
+    static void CleanSeverRes()
+    {
+        try
+        {
+            BuildLogger.WriteLog($"========================================");
+            BuildLogger.WriteLog($"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] 开始清理本地服务器资源目录");
+            BuildLogger.WriteLog($"平台: {PLATFORM}");
+            BuildLogger.WriteLog($"清理路径: {ServerResDir}");
+            BuildLogger.WriteLog($"========================================");
+
+            // 检查目录是否存在
+            if (Directory.Exists(ServerResDir))
             {
-                StartInfo = new System.Diagnostics.ProcessStartInfo
+                BuildLogger.WriteLog("正在清空目录...");
+
+                // 删除目录下所有文件和子目录
+                DirectoryInfo di = new DirectoryInfo(ServerResDir);
+                foreach (FileInfo file in di.GetFiles("*", SearchOption.AllDirectories))
                 {
-                    FileName = gitBashPath,
-                    Arguments = $"--login -i \"{scriptPath}\"",
-                    RedirectStandardOutput = true,
-                    RedirectStandardError = true,
-                    UseShellExecute = false,
-                    CreateNoWindow = true
+                    file.Delete();
                 }
-            };
-            process.Start();
-            string output = process.StandardOutput.ReadToEnd();
-            string error = process.StandardError.ReadToEnd();
-            process.WaitForExit();
+                foreach (DirectoryInfo dir in di.GetDirectories())
+                {
+                    dir.Delete(true);
+                }
 
-            string logContent = $"脚本执行完成，退出代码: {process.ExitCode}\n" +
-                                $"标准输出:\n{output}\n" +
-                                $"错误输出:\n{error}\n";
-
-            // 保存到配置的日志路径
-            string logPath = BuildToolPanel.GetLogPath();
-            File.WriteAllText(logPath, logContent);
-
-            Console.WriteLine(logContent);
-
-
-            Console.WriteLine($"脚本执行完成，退出代码: {process.ExitCode}");
-            Console.WriteLine("标准输出:\n" + output);
-            Console.WriteLine("错误输出:\n" + error);
-
-            BuildLogger.WriteLog("资源同步命令已执行");
-        }
-
-        static void CleanSeverRes()
-        {
-            string gitBashPath = BuildToolPanel.GetGitBashPath();
-            string scriptPath = BuildToolPanel.GetBuildCleanScriptPath();
-            BuildLogger.WriteLog("脚本路径: " + scriptPath);
-
-            var process = new System.Diagnostics.Process
+                BuildLogger.WriteLog("✅ 目录已完全清空");
+            }
+            else
             {
-                StartInfo = new System.Diagnostics.ProcessStartInfo
-                {
-                    FileName = gitBashPath,
-                    Arguments = $"--login -i \"{scriptPath}\"",
-                    RedirectStandardOutput = true,
-                    RedirectStandardError = true,
-                    UseShellExecute = false,
-                    CreateNoWindow = true
-                }
-            };
-            process.Start();
-            string output = process.StandardOutput.ReadToEnd();
-            string error = process.StandardError.ReadToEnd();
-            process.WaitForExit();
+                BuildLogger.WriteLog("⚠️ 目录不存在，正在创建...");
+                Directory.CreateDirectory(ServerResDir);
+                BuildLogger.WriteLog("✅ 目录创建成功");
+            }
 
-            Console.WriteLine($"脚本执行完成，退出代码: {process.ExitCode}");
-            Console.WriteLine("标准输出:\n" + output);
-            Console.WriteLine("错误输出:\n" + error);
-            BuildLogger.WriteLog("远程服务器清理命令已执行");
+            // 验证清理结果
+            int fileCount = Directory.GetFiles(ServerResDir, "*", SearchOption.AllDirectories).Length;
+            BuildLogger.WriteLog($"========================================");
+            BuildLogger.WriteLog($"✅ 清理完成!");
+            BuildLogger.WriteLog($"剩余文件数量: {fileCount}");
+            BuildLogger.WriteLog($"========================================");
         }
-    
+        catch (Exception ex)
+        {
+            BuildLogger.WriteLog($"========================================");
+            BuildLogger.WriteLog($"❌ 清理失败!");
+            BuildLogger.WriteLog($"错误信息: {ex.Message}");
+            BuildLogger.WriteLog($"堆栈跟踪: {ex.StackTrace}");
+            BuildLogger.WriteLog($"========================================");
+            throw;
+        }
+    }
+
+    /// <summary>
+    /// 同步资源到服务器
+    /// </summary>
+    static void SeverSyncRes()
+    {
+        try
+        {
+            BuildLogger.WriteLog($"========================================");
+            BuildLogger.WriteLog($"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] 开始资源同步");
+            BuildLogger.WriteLog($"平台: {PLATFORM}");
+            BuildLogger.WriteLog($"源目录: {BundlesDir}");
+            BuildLogger.WriteLog($"目标目录: {ServerResDir}");
+            BuildLogger.WriteLog($"========================================");
+
+            // 检查源目录是否存在
+            if (!Directory.Exists(BundlesDir))
+            {
+                BuildLogger.WriteLog($"❌ 错误: Bundles目录不存在: {BundlesDir}");
+                BuildLogger.WriteLog("请先执行资源包构建");
+                throw new DirectoryNotFoundException($"Bundles目录不存在: {BundlesDir}");
+            }
+
+            // 检查目标目录是否存在，不存在则创建
+            if (!Directory.Exists(ServerResDir))
+            {
+                BuildLogger.WriteLog("⚠️ 服务器资源目录不存在，正在创建...");
+                Directory.CreateDirectory(ServerResDir);
+                BuildLogger.WriteLog("✅ 目录创建成功");
+            }
+
+            BuildLogger.WriteLog("当前工作目录: " + BundlesDir);
+
+            // 查找版本文件夹（格式: X.Y.Z）
+            BuildLogger.WriteLog("");
+            BuildLogger.WriteLog("===== 扫描版本文件夹 =====");
+
+            List<string> versionDirs = new List<string>();
+            DirectoryInfo bundlesDirInfo = new DirectoryInfo(BundlesDir);
+            foreach (DirectoryInfo dir in bundlesDirInfo.GetDirectories())
+            {
+                // 检查是否符合版本号格式 X.Y.Z
+                if (System.Text.RegularExpressions.Regex.IsMatch(dir.Name, @"^\d+\.\d+\.\d+$"))
+                {
+                    versionDirs.Add(dir.Name);
+                }
+            }
+
+            if (versionDirs.Count == 0)
+            {
+                BuildLogger.WriteLog("❌ 错误: 未找到版本文件夹");
+                BuildLogger.WriteLog("Bundles目录应包含类似 1.0.0, 2.0.0 等版本文件夹");
+                throw new Exception("未找到版本文件夹");
+            }
+
+            // 按版本号排序
+            versionDirs.Sort((a, b) => new Version(a).CompareTo(new Version(b)));
+
+            BuildLogger.WriteLog("检测到的版本文件夹:");
+            foreach (string version in versionDirs)
+            {
+                BuildLogger.WriteLog($"  {version}");
+            }
+            BuildLogger.WriteLog("==========================");
+
+            // 获取最新版本和上一版本
+            string currentVersion = versionDirs[versionDirs.Count - 1];
+            string lastVersion = versionDirs.Count > 1 ? versionDirs[versionDirs.Count - 2] : null;
+
+            BuildLogger.WriteLog("");
+            BuildLogger.WriteLog($"当前版本: {currentVersion}");
+            BuildLogger.WriteLog($"上一版本: {(string.IsNullOrEmpty(lastVersion) ? "无" : lastVersion)}");
+            BuildLogger.WriteLog("");
+
+            // 判断是全量更新还是增量更新
+            if (string.IsNullOrEmpty(lastVersion))
+            {
+                // 全量更新
+                FullSync(currentVersion);
+            }
+            else
+            {
+                // 增量更新
+                IncrementalSync(currentVersion, lastVersion);
+            }
+
+            // 显示服务器目录文件列表
+            int fileCount = Directory.GetFiles(ServerResDir, "*", SearchOption.AllDirectories).Length;
+            long totalSize = GetDirectorySize(new DirectoryInfo(ServerResDir));
+
+            BuildLogger.WriteLog("");
+            BuildLogger.WriteLog("=========================================");
+            BuildLogger.WriteLog("服务器资源目录内容:");
+            BuildLogger.WriteLog($"总文件数: {fileCount}");
+            BuildLogger.WriteLog($"总大小: {FormatFileSize(totalSize)}");
+            BuildLogger.WriteLog("=========================================");
+            BuildLogger.WriteLog("✅ 资源同步完成!");
+            BuildLogger.WriteLog("=========================================");
+        }
+        catch (Exception ex)
+        {
+            BuildLogger.WriteLog($"========================================");
+            BuildLogger.WriteLog($"❌ 资源同步失败!");
+            BuildLogger.WriteLog($"错误信息: {ex.Message}");
+            BuildLogger.WriteLog($"堆栈跟踪: {ex.StackTrace}");
+            BuildLogger.WriteLog($"========================================");
+            throw;
+        }
+    }
+
+    /// <summary>
+    /// 全量同步
+    /// </summary>
+    private static void FullSync(string currentVersion)
+    {
+        BuildLogger.WriteLog("===== 执行全量更新 =====");
+        BuildLogger.WriteLog("首次打包或仅有一个版本，将进行全量同步");
+
+        string sourceDir = Path.Combine(BundlesDir, currentVersion);
+
+        BuildLogger.WriteLog("正在复制资源文件...");
+
+        // 复制整个版本目录到服务器
+        CopyDirectory(sourceDir, ServerResDir, true);
+
+        BuildLogger.WriteLog("✅ 全量更新完成");
+    }
+
+    /// <summary>
+    /// 增量同步
+    /// </summary>
+    private static void IncrementalSync(string currentVersion, string lastVersion)
+    {
+        BuildLogger.WriteLog("===== 执行增量更新 =====");
+        BuildLogger.WriteLog($"对比版本 {lastVersion} → {currentVersion}");
+
+        string currentDir = Path.Combine(BundlesDir, currentVersion);
+        string lastDir = Path.Combine(BundlesDir, lastVersion);
+
+        BuildLogger.WriteLog("正在分析差异文件...");
+
+        // 收集差异文件
+        List<string> diffFiles = new List<string>();
+
+        // 获取当前版本所有文件
+        DirectoryInfo currentDirInfo = new DirectoryInfo(currentDir);
+        foreach (FileInfo file in currentDirInfo.GetFiles("*", SearchOption.AllDirectories))
+        {
+            string relativePath = file.FullName.Substring(currentDir.Length + 1);
+            string lastFilePath = Path.Combine(lastDir, relativePath);
+
+            // 检查是否为新增文件或修改文件
+            if (!File.Exists(lastFilePath))
+            {
+                // 新增文件
+                diffFiles.Add(relativePath);
+            }
+            else
+            {
+                // 比较文件是否修改（通过文件大小和修改时间）
+                FileInfo lastFile = new FileInfo(lastFilePath);
+                if (file.Length != lastFile.Length || file.LastWriteTime != lastFile.LastWriteTime)
+                {
+                    diffFiles.Add(relativePath);
+                }
+            }
+        }
+
+        BuildLogger.WriteLog($"差异文件数量: {diffFiles.Count}");
+
+        if (diffFiles.Count == 0)
+        {
+            BuildLogger.WriteLog("⚠️ 没有检测到差异文件，跳过更新");
+            return;
+        }
+
+        BuildLogger.WriteLog("正在复制增量文件...");
+
+        // 复制差异文件到服务器
+        int copiedCount = 0;
+        foreach (string relativePath in diffFiles)
+        {
+            string sourceFile = Path.Combine(currentDir, relativePath);
+            string targetFile = Path.Combine(ServerResDir, relativePath);
+
+            // 确保目标目录存在
+            string targetDir = Path.GetDirectoryName(targetFile);
+            if (!Directory.Exists(targetDir))
+            {
+                Directory.CreateDirectory(targetDir);
+            }
+
+            // 复制文件
+            File.Copy(sourceFile, targetFile, true);
+            copiedCount++;
+
+            // 每复制100个文件显示一次进度
+            if (copiedCount % 100 == 0)
+            {
+                BuildLogger.WriteLog($"已复制: {copiedCount}/{diffFiles.Count}");
+            }
+        }
+
+        BuildLogger.WriteLog($"✅ 增量更新完成，共复制 {copiedCount} 个文件");
+    }
+
+    /// <summary>
+    /// 递归复制目录
+    /// </summary>
+    private static void CopyDirectory(string sourceDir, string targetDir, bool overwrite)
+    {
+        DirectoryInfo dir = new DirectoryInfo(sourceDir);
+
+        if (!dir.Exists)
+        {
+            throw new DirectoryNotFoundException($"源目录不存在: {sourceDir}");
+        }
+
+        // 创建目标目录
+        if (!Directory.Exists(targetDir))
+        {
+            Directory.CreateDirectory(targetDir);
+        }
+
+        // 复制所有文件
+        foreach (FileInfo file in dir.GetFiles())
+        {
+            string targetFilePath = Path.Combine(targetDir, file.Name);
+            file.CopyTo(targetFilePath, overwrite);
+        }
+
+        // 递归复制子目录
+        foreach (DirectoryInfo subDir in dir.GetDirectories())
+        {
+            string newTargetDir = Path.Combine(targetDir, subDir.Name);
+            CopyDirectory(subDir.FullName, newTargetDir, overwrite);
+        }
+    }
+
+    /// <summary>
+    /// 获取目录大小
+    /// </summary>
+    private static long GetDirectorySize(DirectoryInfo dir)
+    {
+        long size = 0;
+
+        // 累加所有文件大小
+        foreach (FileInfo file in dir.GetFiles("*", SearchOption.AllDirectories))
+        {
+            size += file.Length;
+        }
+
+        return size;
+    }
+
+    /// <summary>
+    /// 格式化文件大小
+    /// </summary>
+    private static string FormatFileSize(long bytes)
+    {
+        string[] sizes = { "B", "KB", "MB", "GB", "TB" };
+        double len = bytes;
+        int order = 0;
+
+        while (len >= 1024 && order < sizes.Length - 1)
+        {
+            order++;
+            len = len / 1024;
+        }
+
+        return $"{len:0.##} {sizes[order]}";
+    }
 }

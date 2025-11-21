@@ -29,18 +29,14 @@ public class BuildToolPanel : BaseToolPanel
 // 构建配置
     public static string AotDllDir;
     public static string JitDllDir ;
-    public static string VersionFilePath;
     public static string OfflineModeSymbol;
     public static string AssetBundleSymbol;
     public static string AotDllsString;
     public static string JitDllsString;
     public static bool EnableLog;
+    public static bool AutoIncrementVersion; // 是否自动递增版本号
 
     // 新增的路径配置
-    public static string GitBashPath;
-    public static string BuildCleanScriptPath;
-    public static string SeverSyncScriptPath;
-    public static string LogPath;
     public static string BuildLogsDir;
     public static string ApkOutputDir;
 
@@ -51,19 +47,16 @@ public class BuildToolPanel : BaseToolPanel
 // 构建配置
      AotDllDir = Path.Combine(Application.dataPath, "JIT", "PakageAsset", "AOTDLL");
      JitDllDir = Path.Combine(Application.dataPath, "JIT", "PakageAsset", "JITDLL");
-     VersionFilePath = Path.Combine(ProjectRoot, "SaveAsset","In", "BuildEditor", "Buildversion.txt");
      OfflineModeSymbol = "RESOURCE_OFFLINE";
      AssetBundleSymbol = "RESOURCE_ASSETBUNDLE";
      AotDllsString = "System.Core.dll,System.dll,mscorlib.dll";
      JitDllsString = "HotUpdate.dll";
      // 从当前编译符号中读取EnableLog状态
      EnableLog = GetEnableLogFromSymbols();
+     // 默认开启版本自动递增（开发阶段可在界面关闭）
+     AutoIncrementVersion = true;
 
     // 新增的路径配置
-     GitBashPath = @"C:\Program Files\Git\bin\bash.exe";
-     BuildCleanScriptPath = Path.Combine(ProjectRoot, "SaveAsset", "In","BuildEditor",  "BuildCleanSeverRes.sh");
-     SeverSyncScriptPath = Path.Combine(ProjectRoot, "SaveAsset", "In","BuildEditor",  "SeverSyncRes.sh");
-     LogPath = Path.Combine(ProjectRoot, "SaveAsset", "Out","BuildEditor",  "sync_log.txt");
      BuildLogsDir = Path.Combine(ProjectRoot, "SaveAsset","Out", "BuildEditor");
      ApkOutputDir = Path.Combine(ProjectRoot, "SaveAsset","Out" ,"BuildPlayer");
     }
@@ -144,18 +137,7 @@ public class BuildToolPanel : BaseToolPanel
         // AOT/JIT DLL目录
         DrawPathField("AOT DLL目录:", ref AotDllDir, true);
         DrawPathField("JIT DLL目录:", ref JitDllDir, true);
-        DrawPathField("版本文件路径:", ref VersionFilePath, false);
         DrawPathField("APK输出目录:", ref ApkOutputDir, true);
-
-        GUILayout.Space(5);
-
-        // 新增的工具路径
-        GUILayout.Label("🔧 工具路径", EditorStyles.boldLabel);
-        DrawPathField("Git Bash路径:", ref GitBashPath, false);
-        DrawPathField("清理脚本路径:", ref BuildCleanScriptPath, false);
-        DrawPathField("同步脚本路径:", ref SeverSyncScriptPath, false);
-        DrawPathField("日志文件路径:", ref LogPath, false);
-        DrawPathField("构建日志目录:", ref BuildLogsDir, true);
 
         GUILayout.Space(10);
 
@@ -198,6 +180,36 @@ public class BuildToolPanel : BaseToolPanel
         GUILayout.Space(30);
         EditorGUILayout.EndHorizontal();
 
+        GUILayout.Space(5);
+
+        // 版本自动递增切换
+        EditorGUILayout.BeginHorizontal();
+        GUILayout.Label("版本递增:", GUILayout.Width(86));
+        EditorGUI.BeginChangeCheck();
+        AutoIncrementVersion = EditorGUILayout.ToggleLeft(
+            AutoIncrementVersion ? "✅ 自动递增" : "⏸️ 开发模式",
+            AutoIncrementVersion,
+            GUILayout.Width(120)
+        );
+        if (EditorGUI.EndChangeCheck())
+        {
+            GUI.changed = true;
+        }
+        // 在同一行显示提示说明，使用和Toggle相同的字体样式
+        var hintStyle = new GUIStyle(EditorStyles.label)
+        {
+            fontSize = EditorStyles.label.fontSize,
+            normal = { textColor = Color.gray }
+        };
+        GUILayout.Label(
+            AutoIncrementVersion
+                ? "每次构建会自动递增版本号"
+                : "保持版本号不变，避免版本号快速增长",
+            hintStyle,
+            GUILayout.ExpandWidth(true)
+        );
+        EditorGUILayout.EndHorizontal();
+
         GUILayout.Space(10);
 
         // DLL列表设置
@@ -222,10 +234,6 @@ public class BuildToolPanel : BaseToolPanel
         if (GUILayout.Button("🔄 重置为默认值", GUILayout.Width(120)))
         {
             ResetToDefaults();
-        }
-        if (GUILayout.Button("📁 查看版本文件", GUILayout.Width(120)))
-        {
-            OpenVersionFile();
         }
         EditorGUILayout.EndHorizontal();
 
@@ -460,45 +468,22 @@ public class BuildToolPanel : BaseToolPanel
         }
     }
 
-    private void OpenVersionFile()
-    {
-        try
-        {
-            if (System.IO.File.Exists(VersionFilePath))
-            {
-                UnityEditorInternal.InternalEditorUtility.OpenFileAtLineExternal(VersionFilePath, 1);
-            }
-            else
-            {
-                EditorUtility.DisplayDialog("提示", "版本文件不存在，请先生成版本号", "确定");
-            }
-        }
-        catch (System.Exception e)
-        {
-            EditorUtility.DisplayDialog("错误", $"打开版本文件失败: {e.Message}", "确定");
-        }
-    }
-
     // 重置为默认值
     private void ResetToDefaults()
     {
         if (EditorUtility.DisplayDialog("重置确认", "将重置所有构建设置为默认值，是否继续？", "确认", "取消"))
         {
-           
+
             // 重置新增的路径配置
             AotDllDir = Path.Combine(Application.dataPath, "JIT", "PakageAsset", "AOTDLL");
             JitDllDir = Path.Combine(Application.dataPath, "JIT", "PakageAsset", "JITDLL");
-            VersionFilePath = Path.Combine(ProjectRoot, "SaveAsset","In", "BuildEditor", "Buildversion.txt");
             OfflineModeSymbol = "RESOURCE_OFFLINE";
             AssetBundleSymbol = "RESOURCE_ASSETBUNDLE";
             AotDllsString = "System.Core.dll,System.dll,mscorlib.dll";
             JitDllsString = "HotUpdate.dll";
             EnableLog = false; // 重置为默认不启用日志
+            AutoIncrementVersion = true; // 重置为默认自动递增
 
-            GitBashPath = @"C:\Program Files\Git\bin\bash.exe";
-            BuildCleanScriptPath = Path.Combine(ProjectRoot, "SaveAsset", "In","BuildEditor",  "BuildCleanSeverRes.sh");
-            SeverSyncScriptPath = Path.Combine(ProjectRoot, "SaveAsset", "In","BuildEditor",  "SeverSyncRes.sh");
-            LogPath = Path.Combine(ProjectRoot, "SaveAsset", "Out","BuildEditor",  "sync_log.txt");
             BuildLogsDir = Path.Combine(ProjectRoot, "SaveAsset","Out", "BuildEditor");
             ApkOutputDir = Path.Combine(ProjectRoot, "SaveAsset","Out" ,"BuildPlayer");
 
@@ -516,7 +501,6 @@ public class BuildToolPanel : BaseToolPanel
     // 兼容原有API，直接在BuildToolPanel中提供
     public static string GetAOTDLLDir() => AotDllDir;
     public static string GetJITDllDir() => JitDllDir;
-    public static string VersionFilePath_Static => VersionFilePath;
 
     public const string OFFLINE_MODE_SYMBOL = "RESOURCE_OFFLINE"; // 保留常量用于兼容性
     public const string ASSETBUNDLE_MODE_SYMBOL = "RESOURCE_ASSETBUNDLE"; // 保留常量用于兼容性
@@ -535,14 +519,12 @@ public class BuildToolPanel : BaseToolPanel
     public static string GetOfflineModeSymbol() => OfflineModeSymbol;
     public static string GetAssetBundleModeSymbol() => AssetBundleSymbol;
     public static bool IsEnableLog() => EnableLog;
+    public static bool IsAutoIncrementVersion() => AutoIncrementVersion;
 
     // 新增的路径访问方法
-    public static string GetGitBashPath() => GitBashPath;
-    public static string GetBuildCleanScriptPath() => BuildCleanScriptPath;
-    public static string GetSeverSyncScriptPath() => SeverSyncScriptPath;
-    public static string GetLogPath() => LogPath;
     public static string GetBuildLogsDir() => BuildLogsDir;
     public static string GetApkOutputDir() => ApkOutputDir;
+    public static string GetProjectRoot() => ProjectRoot;
 
     #endregion
 

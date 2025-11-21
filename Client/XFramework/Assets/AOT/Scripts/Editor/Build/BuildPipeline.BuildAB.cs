@@ -12,10 +12,22 @@ using YooAsset;
         /// <summary>
         /// 构建全量资源包
         /// </summary>
-        public static void BuildFullAB()
+        /// <param name="autoIncrementVersion">是否自动递增版本号（开发模式传false，正式发布传true）</param>
+        public static void BuildFullAB(bool autoIncrementVersion = true)
         {
-            string currentVersion = GetVersion("apk");
-            string newVersion = GetNextVersion(currentVersion, true);
+            // 从 PlayerSettings 读取当前版本
+            string currentVersion = PlayerSettings.bundleVersion;
+            string newVersion = currentVersion;
+
+            if (autoIncrementVersion)
+            {
+                newVersion = GetNextVersion(currentVersion, true);
+                BuildLogger.WriteLog($"版本号递增: {currentVersion} → {newVersion}");
+            }
+            else
+            {
+                BuildLogger.WriteLog($"开发模式：保持版本号 {currentVersion} 不变");
+            }
 
             var buildParams = new ScriptableBuildParameters
             {
@@ -41,17 +53,35 @@ using YooAsset;
             };
             BuildLogger.WriteLog("准备构建");
             ExecuteBuildAB(buildParams, "全量资源包");
-            SetVersion("apk", newVersion);
+
+            // 只有在自动递增模式下才更新版本号
+            if (autoIncrementVersion)
+            {
+                PlayerSettings.bundleVersion = newVersion;
+                PlayerSettings.Android.bundleVersionCode++;
+                BuildLogger.WriteLog($"已更新版本号: {newVersion}, Android构建号: {PlayerSettings.Android.bundleVersionCode}");
+            }
         }
 
         /// <summary>
         /// 构建热更新资源包
         /// </summary>
-        public static void BuildIncrementalAB()
+        /// <param name="autoIncrementVersion">是否自动递增版本号（开发模式传false，正式发布传true）</param>
+        public static void BuildIncrementalAB(bool autoIncrementVersion = true)
         {
-            // 读取并递增hotfix版本号
-            string currentVersion = GetVersion("apk");
-            string newVersion = GetNextVersion(currentVersion, false);
+            // 从 PlayerSettings 读取当前版本
+            string currentVersion = PlayerSettings.bundleVersion;
+            string newVersion = currentVersion;
+
+            if (autoIncrementVersion)
+            {
+                newVersion = GetNextVersion(currentVersion, false);
+                BuildLogger.WriteLog($"版本号递增: {currentVersion} → {newVersion}");
+            }
+            else
+            {
+                BuildLogger.WriteLog($"开发模式：保持版本号 {currentVersion} 不变");
+            }
 
             var buildParams = new ScriptableBuildParameters
             {
@@ -76,7 +106,14 @@ using YooAsset;
                 DisableWriteTypeTree = false, // 全量包不禁用TypeTree写入
             };
             ExecuteBuildAB(buildParams, "热更新资源包");
-            SetVersion("apk", newVersion);
+
+            // 只有在自动递增模式下才更新版本号
+            if (autoIncrementVersion)
+            {
+                PlayerSettings.bundleVersion = newVersion;
+                PlayerSettings.Android.bundleVersionCode++;
+                BuildLogger.WriteLog($"已更新版本号: {newVersion}, Android构建号: {PlayerSettings.Android.bundleVersionCode}");
+            }
         }
 
 

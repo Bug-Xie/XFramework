@@ -7,7 +7,10 @@
       "Bash(dir \"C:\\MyPart\\Work\\UnityHub\\XFramework\\Client\\XFramework\\Assets\\AOT\\Scripts\\Log\\Log\" /B)",
       "Bash(\"C:\\MyPart\\Work\\UnityHub\\XFramework\\Client\\XFramework\\Assets\\AOT\\Scripts\\Editor\\Build\\Buildversion.txt\")",
       "Bash(del \"C:\\MyPart\\Work\\UnityHub\\XFramework\\Client\\XFramework\\Assets\\AOT\\Scripts\\Editor\\ToolPanels\\AssetToolPanel.cs\")",
-      "Bash(del \"C:\\MyPart\\Work\\UnityHub\\XFramework\\Client\\XFramework\\Assets\\link.xml\")"
+      "Bash(del \"C:\\MyPart\\Work\\UnityHub\\XFramework\\Client\\XFramework\\Assets\\link.xml\")",
+      "Bash(dir \"C:\\MyPart\\Work\\UnityHub\\XFramework\\Server\" /B)",
+      "Bash(del \"C:\\MyPart\\Work\\UnityHub\\XFramework\\Client\\XFramework\\SaveAsset\\In\\BuildEditor\\CleanSeverRes.sh\")",
+      "Bash(del \"C:\\MyPart\\Work\\UnityHub\\XFramework\\Client\\XFramework\\SaveAsset\\In\\BuildEditor\\SeverSyncRes.sh\")"
     ],
     "deny": [],
     "ask": []
