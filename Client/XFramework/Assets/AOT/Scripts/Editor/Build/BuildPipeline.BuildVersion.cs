@@ -44,6 +44,21 @@ public partial class BuildPipelineEditor
     }
 
     /// <summary>
+    /// 计算下一个版本号
+    /// </summary>
+    /// <param name="currentVersion">当前版本号</param>
+    /// <param name="isFullBuild">true=主版本号+1，false=修订号+1</param>
+    public static int GetAndroidVersion(string currentVersion)
+    {
+        var match = Regex.Match(currentVersion, @"^(\d+)\.(\d+)\.(\d+)$");
+        if (!match.Success)
+            throw new Exception("版本号格式错误，应为 x.x.x");
+
+        int major = int.Parse(match.Groups[1].Value);
+        return major;
+    }
+
+    /// <summary>
     /// 设置编译符号（宏定义），用于区分不同构建模式
     /// </summary>
     public static void SetScriptingDefineSymbol(string symbol)

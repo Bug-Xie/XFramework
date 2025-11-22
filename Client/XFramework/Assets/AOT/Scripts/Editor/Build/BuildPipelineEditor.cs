@@ -15,7 +15,7 @@ public partial class BuildPipelineEditor
         GameToolLogger.WriteLog("步骤4/6: 构建DLL");
         BuildDLL();
         GameToolLogger.WriteLog("步骤5/6: 构建资源包");
-        BuildFullAB(BuildToolPanel.IsAutoIncrementVersion()); // 根据配置决定是否递增版本
+        BuildAB(true,true); // 直接递增版本
         GameToolLogger.WriteLog("步骤6/6: 构建APK");
         BuildPlayer( "Offline"); // 构建包含所有资源的APK
         GameToolLogger.WriteLog("========== 全量包(离线)完成 ==========");
@@ -35,9 +35,9 @@ public partial class BuildPipelineEditor
         GameToolLogger.WriteLog("步骤4/7: 构建DLL");
         BuildDLL();
         GameToolLogger.WriteLog("步骤5/7: 构建资源包");
-        BuildFullAB(BuildToolPanel.IsAutoIncrementVersion()); // 根据配置决定是否递增版本
+        BuildAB(true,true); // 直接递增版本
         GameToolLogger.WriteLog("步骤6/7: 服务器资源同步");
-        BuildFullSeverSync();
+        BuildSeverSync();
         GameToolLogger.WriteLog("步骤7/7: 构建APK");
         BuildPlayer( "Release"); // 构建包含所有资源的APK
         GameToolLogger.WriteLog("========== 全量包APK(热更)完成 ==========");
@@ -57,9 +57,9 @@ public partial class BuildPipelineEditor
         GameToolLogger.WriteLog("步骤4/7: 构建DLL");
         BuildDLL();
         GameToolLogger.WriteLog("步骤5/7: 构建资源包");
-        BuildIncrementalAB(BuildToolPanel.IsAutoIncrementVersion()); // 根据配置决定是否递增版本
+        BuildAB(true,false); // 直接递增版本
         GameToolLogger.WriteLog("步骤6/7: 服务器资源同步");
-        BuildFullSeverSync();
+        BuildSeverSync();
         GameToolLogger.WriteLog("步骤7/7: 构建APK");
         BuildPlayer("Release"); // 构建包含所有资源的APK
         GameToolLogger.WriteLog("========== 空包APK(热更)完成 ==========");
@@ -79,7 +79,7 @@ public partial class BuildPipelineEditor
         GameToolLogger.WriteLog("步骤4/6: 构建DLL");
         BuildDLL();
         GameToolLogger.WriteLog("步骤5/6: 构建资源包");
-        BuildIncrementalAB(BuildToolPanel.IsAutoIncrementVersion()); // 根据配置决定是否递增版本
+        BuildAB(false,false); // 直接递增版本
         GameToolLogger.WriteLog("步骤6/6: 服务器资源同步");
         BuildSeverSync();
         GameToolLogger.WriteLog("========== 增量资源包(热更)完成 ==========");

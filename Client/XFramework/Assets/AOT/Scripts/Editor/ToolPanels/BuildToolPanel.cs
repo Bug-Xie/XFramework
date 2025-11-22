@@ -34,7 +34,6 @@ public class BuildToolPanel : BaseToolPanel
     public static string AotDllsString;
     public static string JitDllsString;
     public static bool EnableLog;
-    public static bool AutoIncrementVersion; // 是否自动递增版本号
 
     // 新增的路径配置
     public static string BuildLogsDir;
@@ -171,37 +170,6 @@ public class BuildToolPanel : BaseToolPanel
         }
 
         GUILayout.Space(30);
-        EditorGUILayout.EndHorizontal();
-
-        GUILayout.Space(5);
-
-        // 版本自动递增切换
-        EditorGUILayout.BeginHorizontal();
-        GUILayout.Label("版本递增:", GUILayout.Width(86));
-        EditorGUI.BeginChangeCheck();
-        AutoIncrementVersion = EditorGUILayout.ToggleLeft(
-            AutoIncrementVersion ? "✅ 自动递增" : "⏸️ 开发模式",
-            AutoIncrementVersion,
-            GUILayout.Width(120)
-        );
-        if (EditorGUI.EndChangeCheck())
-        {
-            GUI.changed = true;
-        }
-
-        // 在同一行显示提示说明，使用和Toggle相同的字体样式
-        var hintStyle = new GUIStyle(EditorStyles.label)
-        {
-            fontSize = EditorStyles.label.fontSize,
-            normal = { textColor = Color.gray }
-        };
-        GUILayout.Label(
-            AutoIncrementVersion
-                ? "每次构建会自动递增版本号"
-                : "保持版本号不变，避免版本号快速增长",
-            hintStyle,
-            GUILayout.ExpandWidth(true)
-        );
         EditorGUILayout.EndHorizontal();
 
         GUILayout.Space(10);
@@ -448,7 +416,6 @@ public class BuildToolPanel : BaseToolPanel
         AotDllsString = "System.Core.dll,System.dll,mscorlib.dll";
         JitDllsString = "HotUpdate.dll";
         EnableLog = true; // 重置为默认不启用日志
-        AutoIncrementVersion = false; // 重置为默认自动递增
 
         BuildLogsDir = Path.Combine(ProjectRoot, "SaveAsset", "Out", "BuildEditor");
         ApkOutputDir = Path.Combine(ProjectRoot, "SaveAsset", "Out", "BuildPlayer");
@@ -479,7 +446,6 @@ public class BuildToolPanel : BaseToolPanel
     public static string GetOfflineModeSymbol() => OfflineModeSymbol;
     public static string GetAssetBundleModeSymbol() => AssetBundleSymbol;
     public static bool IsEnableLog() => EnableLog;
-    public static bool IsAutoIncrementVersion() => AutoIncrementVersion;
 
     // 新增的路径访问方法
     public static string GetBuildLogsDir() => BuildLogsDir;
