@@ -47,7 +47,7 @@ public partial class BuildPipelineEditor
         //更新版本号
         PlayerSettings.bundleVersion = newVersion;
         PlayerSettings.Android.bundleVersionCode =isFullBuild?GetAndroidVersion(newVersion): PlayerSettings.Android.bundleVersionCode;
-        GameToolLogger.WriteLog($"已更新版本号: {newVersion}, Android构建号: { PlayerSettings.Android.bundleVersionCode }");
+        Log.Info($"已更新版本号: {newVersion}, Android构建号: { PlayerSettings.Android.bundleVersionCode }");
     }
 
 
@@ -57,17 +57,17 @@ public partial class BuildPipelineEditor
     /// </summary>
     private static void ExecuteBuildAB(ScriptableBuildParameters buildParams, string buildName)
     {
-        GameToolLogger.WriteLog($"开始执行 {buildName} 构建...");
-        GameToolLogger.WriteLog($"构建参数: 目标平台={buildParams.BuildTarget}, 版本={buildParams.PackageVersion}");
+        Log.Info($"开始执行 {buildName} 构建...");
+        Log.Info($"构建参数: 目标平台={buildParams.BuildTarget}, 版本={buildParams.PackageVersion}");
 
         var pipeline = new ScriptableBuildPipeline();
         var result = pipeline.Run(buildParams, false);
 
-        GameToolLogger.WriteLog($"YooAsset构建完成: {(result.Success ? "成功 ✅" : "失败 ❌")}");
+        Log.Info($"YooAsset构建完成: {(result.Success ? "成功 ✅" : "失败 ❌")}");
 
         if (result.Success)
         {
-            GameToolLogger.WriteLog($"✅ {buildName}构建成功 | 版本: {buildParams.PackageVersion}");
+            Log.Info($"✅ {buildName}构建成功 | 版本: {buildParams.PackageVersion}");
 
             // 资源验证和日志
             AssetDatabase.Refresh();
@@ -76,21 +76,21 @@ public partial class BuildPipelineEditor
             if (Directory.Exists(targetDir))
             {
                 var files = Directory.GetFiles(targetDir, "*", SearchOption.AllDirectories);
-                GameToolLogger.WriteLog($"构建成功! 资源文件数量: {files.Length}");
+                Log.Info($"构建成功! 资源文件数量: {files.Length}");
 
                 if (files.Length > 0)
                 {
-                    GameToolLogger.WriteLog("资源文件示例:");
+                    Log.Info("资源文件示例:");
                     foreach (var file in files.Take(3))
                     {
-                        GameToolLogger.WriteLog($"- {file.Replace(Application.dataPath, "Assets")}");
+                        Log.Info($"- {file.Replace(Application.dataPath, "Assets")}");
                     }
                 }
             }
         }
         else
         {
-            GameToolLogger.WriteLog($"❌ {buildName}构建失败，请检查错误日志", LogType.Error);
+            Log.Error($"❌ {buildName}构建失败，请检查错误日志");
             throw new Exception($"{buildName} 构建失败，已中断后续流程！");
         }
     }

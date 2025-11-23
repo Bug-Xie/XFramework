@@ -44,26 +44,17 @@ public class UnityLogHandler : ILogHandler
         string formattedMessage = _formatBuffer.ToString();
 
         // 输出到Unity Debug
-        if (LogConfig.UseUnityDebug)
+        switch (level)
         {
-            switch (level)
-            {
-                case LogLevel.Info:
-                    UnityEngine.Debug.Log(formattedMessage, context);
-                    break;
-                case LogLevel.Warn:
-                    UnityEngine.Debug.LogWarning(formattedMessage, context);
-                    break;
-                case LogLevel.Error:
-                    UnityEngine.Debug.LogError(formattedMessage, context);
-                    break;
-            }
-        }
-
-        // 输出到控制台
-        if (LogConfig.UseConsoleOutput)
-        {
-            System.Console.WriteLine(formattedMessage);
+            case LogLevel.Info:
+                UnityEngine.Debug.Log(formattedMessage, context);
+                break;
+            case LogLevel.Warn:
+                UnityEngine.Debug.LogWarning(formattedMessage, context);
+                break;
+            case LogLevel.Error:
+                UnityEngine.Debug.LogError(formattedMessage, context);
+                break;
         }
 
         _lastTag = tag;
@@ -73,14 +64,7 @@ public class UnityLogHandler : ILogHandler
     {
         if (LogConfig.ShowStackTrace && !string.IsNullOrEmpty(stackTrace))
         {
-            if (LogConfig.UseUnityDebug)
-            {
-                UnityEngine.Debug.Log(stackTrace);
-            }
-            if (LogConfig.UseConsoleOutput)
-            {
-                System.Console.WriteLine(stackTrace);
-            }
+            UnityEngine.Debug.Log(stackTrace);
         }
     }
 

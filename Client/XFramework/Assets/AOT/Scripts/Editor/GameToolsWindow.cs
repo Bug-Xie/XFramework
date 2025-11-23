@@ -42,7 +42,7 @@ public class GameToolsWindow : EditorWindow
     {
         // 清理所有面板
         _toolPanels?.ForEach(panel => panel.OnDestroy());
-        GameToolLogger.Shutdown();
+        // Log 系统有自动 Shutdown 机制，无需手动调用
     }
 
     void OnGUI()

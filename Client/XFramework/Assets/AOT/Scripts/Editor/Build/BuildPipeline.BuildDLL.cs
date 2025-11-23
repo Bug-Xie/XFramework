@@ -13,16 +13,16 @@ using System.Collections.Generic;
             AssetDatabase.Refresh();
 
             // 5. 生成HybridCLR所需的DLL
-            GameToolLogger.WriteLog("生成HybridCLR热更DLL和AOT元数据DLL...");
+            Log.Info("生成HybridCLR热更DLL和AOT元数据DLL...");
             PrebuildCommand.GenerateAll();
-            GameToolLogger.WriteLog("开始处理DLL文件...");
+            Log.Info("开始处理DLL文件...");
 
             CopyDLL(true);  // 拷贝AOT DLL
             CopyDLL(false); // 拷贝JIT DLL
 
             // 建议在最后刷新AssetDatabase
             AssetDatabase.Refresh();
-            GameToolLogger.WriteLog("DLL处理完成！");
+            Log.Info("DLL处理完成！");
         }
 
         public static void CopyDLL(bool isAOT)
@@ -50,7 +50,7 @@ using System.Collections.Generic;
             // 检查源目录是否存在
             if (!Directory.Exists(sourceDir))
             {
-                GameToolLogger.WriteLog($"{dllType} DLL源目录不存在: {sourceDir}", LogType.Error);
+                Log.Error($"{dllType} DLL源目录不存在: {sourceDir}");
                 return;
             }
 
@@ -58,7 +58,7 @@ using System.Collections.Generic;
             if (!Directory.Exists(targetDir))
             {
                 Directory.CreateDirectory(targetDir);
-                GameToolLogger.WriteLog($"已创建{dllType} DLL目录: {targetDir}");
+                Log.Info($"已创建{dllType} DLL目录: {targetDir}");
             }
             
             int copiedCount = 0;
@@ -71,7 +71,7 @@ using System.Collections.Generic;
                 // 智能过滤：只拷贝需要的 DLL
                 if (dllList.Count > 0 && !dllList.Contains(fileName))
                 {
-                    GameToolLogger.WriteLog($"跳过不需要的{dllType} DLL: {fileName}");
+                    Log.Info($"跳过不需要的{dllType} DLL: {fileName}");
                     skippedCount++;
                     continue;
                 }
@@ -83,14 +83,14 @@ using System.Collections.Generic;
                     File.Copy(dllPath, targetPath, true);
 
                     copiedCount++;
-                    GameToolLogger.WriteLog($"已拷贝{dllType} DLL: {fileName} → {targetPath}");
+                    Log.Info($"已拷贝{dllType} DLL: {fileName} → {targetPath}");
                 }
                 catch (System.Exception e)
                 {
-                    GameToolLogger.WriteLog($"拷贝{dllType} DLL失败: {fileName}, 错误: {e.Message}", LogType.Error);
+                    Log.Error($"拷贝{dllType} DLL失败: {fileName}, 错误: {e.Message}");
                 }
             }
 
-            GameToolLogger.WriteLog($"完成{dllType} DLL拷贝: 成功 {copiedCount} 个, 跳过 {skippedCount} 个");
+            Log.Info($"完成{dllType} DLL拷贝: 成功 {copiedCount} 个, 跳过 {skippedCount} 个");
         }
     }

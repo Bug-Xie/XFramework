@@ -66,11 +66,8 @@ public class FileLogHandler : ILogHandler, IDisposable
                 _fileWriter.WriteLine(logLine);
                 _currentFileSize += logBytes.Length;
 
-                // 定期刷新，减少IO
-                if (_currentFileSize % (512 * 1024) == 0)
-                {
-                    _fileWriter.Flush();
-                }
+                // 每写入一条日志就刷新，确保数据及时写入磁盘
+                _fileWriter.Flush();
             }
             catch (Exception ex)
             {
@@ -136,6 +133,8 @@ public class FileLogHandler : ILogHandler, IDisposable
         {
             try
             {
+
+                
                 // 确定日志目录
                 if (string.IsNullOrEmpty(LogConfig.LogFileDirectory))
                 {
@@ -230,14 +229,14 @@ public class FileLogHandler : ILogHandler, IDisposable
 
     private string GetDefaultLogDirectory()
     {
-        if (LogConfig.UseUnityDebug)
-        {
-            return UnityEngine.Application.persistentDataPath + "/Logs/";
-        }
-        else
-        {
-            return AppDomain.CurrentDomain.BaseDirectory + "Logs/";
-        }
+#if UNITY_EDITOR
+        string projectRoot = Directory.GetParent(UnityEngine.Application.dataPath).FullName;
+        return Path.Combine(projectRoot, "SaveAsset/Out/Logger");
+#elif UNITY_STANDALONE || UNITY_ANDROID || UNITY_IOS
+        return UnityEngine.Application.persistentDataPath + "/Logs/";
+#else
+        return AppDomain.CurrentDomain.BaseDirectory + "Logs/";
+#endif
     }
 
     private string GetLevelTag(LogLevel level)

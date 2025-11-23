@@ -14,8 +14,8 @@ using System.IO;
         /// <param name="apkName">APK名称前缀</param>
         public static void BuildPlayer(String apkName)
         {
-            GameToolLogger.WriteLog("开始APK构建...");
-            GameToolLogger.WriteLog($"构建类型: 全量包");
+            Log.Info("开始APK构建...");
+            Log.Info($"构建类型: 全量包");
 
             // 从 PlayerSettings 读取版本号
             string currentVersion = PlayerSettings.bundleVersion;
@@ -30,10 +30,10 @@ using System.IO;
             if (!Directory.Exists(outputDir))
             {
                 Directory.CreateDirectory(outputDir);
-                GameToolLogger.WriteLog($"创建APK输出目录: {outputDir}");
+                Log.Info($"创建APK输出目录: {outputDir}");
             }
             string outputPath = Path.Combine(outputDir, $"{buildType}_{currentVersion}.apk");
-            GameToolLogger.WriteLog($"APK输出路径: {outputPath}");
+            Log.Info($"APK输出路径: {outputPath}");
 
             // 配置构建选项
             var options = new BuildPlayerOptions
@@ -48,14 +48,14 @@ using System.IO;
             BuildReport report = UnityEditor.BuildPipeline.BuildPlayer(options);
             if (report.summary.result == UnityEditor.Build.Reporting.BuildResult.Succeeded)
             {
-                GameToolLogger.WriteLog($"✅ APK构建成功: {outputPath}");
+                Log.Info($"✅ APK构建成功: {outputPath}");
 
                 // 获取实际文件大小
                 FileInfo fileInfo = new FileInfo(outputPath);
                 long fileSizeBytes = fileInfo.Length;
                 double fileSizeMB = fileSizeBytes / (1024.0 * 1024.0);
                 double fileSizeKB = fileSizeBytes / 1024.0;
-                GameToolLogger.WriteLog($"实际文件大小: {fileSizeMB:F2} MB ({fileSizeKB:F0} KB)");
+                Log.Info($"实际文件大小: {fileSizeMB:F2} MB ({fileSizeKB:F0} KB)");
             }
             else
             {

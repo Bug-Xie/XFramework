@@ -28,21 +28,21 @@ public partial class BuildPipelineEditor
     {
         try
         {
-            GameToolLogger.WriteLog($"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] 开始资源同步");
-            GameToolLogger.WriteLog($"源目录: {BundlesDir}");
-            GameToolLogger.WriteLog($"目标目录: {ServerResDir}");
+            Log.Info($"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] 开始资源同步");
+            Log.Info($"源目录: {BundlesDir}");
+            Log.Info($"目标目录: {ServerResDir}");
 
             // 检查源目录是否存在
             if (!Directory.Exists(BundlesDir))
             {
-                GameToolLogger.WriteLog($"❌ 错误: Bundles目录不存在: {BundlesDir}");
+                Log.Info($"❌ 错误: Bundles目录不存在: {BundlesDir}");
                 throw new DirectoryNotFoundException($"Bundles目录不存在: {BundlesDir}");
             }
 
             // 第一步：删除服务器目标文件夹内所有内容
             if (Directory.Exists(ServerResDir))
             {
-                GameToolLogger.WriteLog("正在清空服务器目录...");
+                Log.Info("正在清空服务器目录...");
                 DirectoryInfo di = new DirectoryInfo(ServerResDir);
                 foreach (FileInfo file in di.GetFiles("*", SearchOption.AllDirectories))
                 {
@@ -59,14 +59,14 @@ public partial class BuildPipelineEditor
             }
 
             // 第二步：将BundlesDir文件夹内容复制到服务器文件夹
-            GameToolLogger.WriteLog("正在复制资源文件...");
+            Log.Info("正在复制资源文件...");
             CopyDirectory(BundlesDir, ServerResDir, true);
 
-            GameToolLogger.WriteLog("✅ 资源同步完成!");
+            Log.Info("✅ 资源同步完成!");
         }
         catch (Exception ex)
         {
-            GameToolLogger.WriteLog($"❌ 资源同步失败: {ex.Message}");
+            Log.Info($"❌ 资源同步失败: {ex.Message}");
             throw;
         }
     }

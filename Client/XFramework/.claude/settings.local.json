@@ -10,7 +10,10 @@
       "Bash(del \"C:\\MyPart\\Work\\UnityHub\\XFramework\\Client\\XFramework\\Assets\\link.xml\")",
       "Bash(dir \"C:\\MyPart\\Work\\UnityHub\\XFramework\\Server\" /B)",
       "Bash(del \"C:\\MyPart\\Work\\UnityHub\\XFramework\\Client\\XFramework\\SaveAsset\\In\\BuildEditor\\CleanSeverRes.sh\")",
-      "Bash(del \"C:\\MyPart\\Work\\UnityHub\\XFramework\\Client\\XFramework\\SaveAsset\\In\\BuildEditor\\SeverSyncRes.sh\")"
+      "Bash(del \"C:\\MyPart\\Work\\UnityHub\\XFramework\\Client\\XFramework\\SaveAsset\\In\\BuildEditor\\SeverSyncRes.sh\")",
+      "Bash(dir \"C:\\MyPart\\Work\\UnityHub\\XFramework\\Client\\XFramework\\SaveAsset\\Out\\Logger\" /A)",
+      "Bash(del \"C:\\MyPart\\Work\\UnityHub\\XFramework\\Client\\XFramework\\Assets\\AOT\\Scripts\\Editor\\GameToolLogger.cs\")",
+      "Bash(del \"C:\\MyPart\\Work\\UnityHub\\XFramework\\Client\\XFramework\\Assets\\AOT\\Scripts\\Editor\\GameToolLogger.cs.meta\")"
     ],
     "deny": [],
     "ask": []

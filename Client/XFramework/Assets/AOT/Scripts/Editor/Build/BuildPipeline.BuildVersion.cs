@@ -58,66 +58,42 @@ public partial class BuildPipelineEditor
         return major;
     }
 
-    /// <summary>
-    /// 设置编译符号（宏定义），用于区分不同构建模式
-    /// </summary>
-    public static void SetScriptingDefineSymbol(string symbol)
-    {
-        var buildTargetGroup = EditorUserBuildSettings.selectedBuildTargetGroup;
-        var symbols = PlayerSettings.GetScriptingDefineSymbolsForGroup(buildTargetGroup)
-            .Split(';')
-            .ToList();
-
-        // 移除已有的相关符号，避免重复
-        symbols.Remove(BuildToolPanel.OFFLINE_MODE_SYMBOL);
-        symbols.Remove(BuildToolPanel.ASSETBUNDLE_MODE_SYMBOL);
-
-        // 添加目标符号
-        if (!symbols.Contains(symbol))
-        {
-            symbols.Add(symbol);
-        }
-
-        PlayerSettings.SetScriptingDefineSymbolsForGroup(buildTargetGroup, string.Join(";", symbols));
-        GameToolLogger.WriteLog($"已设置编译符号: {symbol}");
-    }
+  
 
     /// <summary>
     /// 管理EnableLog宏定义
     /// </summary>
     /// <param name="enableLog">true为添加EnableLog宏，false为移除EnableLog宏</param>
-    public static void SetEnableLogSymbol(bool enableLog)
+    public static void SetEnableLogSymbol(string  symbol,bool enableLog)
     {
         var buildTargetGroup = EditorUserBuildSettings.selectedBuildTargetGroup;
         var symbols = PlayerSettings.GetScriptingDefineSymbolsForGroup(buildTargetGroup)
             .Split(';')
             .ToList();
 
-        const string ENABLE_LOG_SYMBOL = "EnableLog";
-
         if (enableLog)
         {
             // 添加EnableLog宏
-            if (!symbols.Contains(ENABLE_LOG_SYMBOL))
+            if (!symbols.Contains(symbol))
             {
-                symbols.Add(ENABLE_LOG_SYMBOL);
-                GameToolLogger.WriteLog("已添加EnableLog宏定义");
+                symbols.Add(symbol);
+                Log.Info("已添加EnableLog宏定义");
             }
             else
             {
-                GameToolLogger.WriteLog("EnableLog宏定义已存在");
+                Log.Info("EnableLog宏定义已存在");
             }
         }
         else
         {
             // 移除EnableLog宏
-            if (symbols.Remove(ENABLE_LOG_SYMBOL))
+            if (symbols.Remove(symbol))
             {
-                GameToolLogger.WriteLog("已移除EnableLog宏定义");
+                Log.Info("已移除EnableLog宏定义");
             }
             else
             {
-                GameToolLogger.WriteLog("EnableLog宏定义不存在，无需移除");
+                Log.Info("EnableLog宏定义不存在，无需移除");
             }
         }
 

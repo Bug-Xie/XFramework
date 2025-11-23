@@ -29,8 +29,6 @@ public class BuildToolPanel : BaseToolPanel
 // 构建配置
     public static string AotDllDir;
     public static string JitDllDir;
-    public static string OfflineModeSymbol;
-    public static string AssetBundleSymbol;
     public static string AotDllsString;
     public static string JitDllsString;
     public static bool EnableLog;
@@ -132,21 +130,9 @@ public class BuildToolPanel : BaseToolPanel
 
         // 编译符号设置
         GUILayout.Label("🔧 编译符号", EditorStyles.boldLabel);
-
         EditorGUILayout.BeginHorizontal();
-        GUILayout.Label("离线模式符号:", GUILayout.Width(100));
-        OfflineModeSymbol = GUILayout.TextField(OfflineModeSymbol, EditorStyles.textField, GUILayout.ExpandWidth(true));
-        GUILayout.Space(30); // 与选择按钮宽度对齐
-        EditorGUILayout.EndHorizontal();
-
-        EditorGUILayout.BeginHorizontal();
-        GUILayout.Label("资源包符号:", GUILayout.Width(100));
-        AssetBundleSymbol = GUILayout.TextField(AssetBundleSymbol, EditorStyles.textField, GUILayout.ExpandWidth(true));
-        GUILayout.Space(30); // 与选择按钮宽度对齐
-        EditorGUILayout.EndHorizontal();
-
+        
         GUILayout.Space(5);
-
         EditorGUILayout.BeginHorizontal();
         GUILayout.Label("当前符号:", GUILayout.Width(100));
         var symbols =
@@ -411,8 +397,7 @@ public class BuildToolPanel : BaseToolPanel
         // 重置新增的路径配置
         AotDllDir = Path.Combine(Application.dataPath, "JIT", "PakageAsset", "AOTDLL");
         JitDllDir = Path.Combine(Application.dataPath, "JIT", "PakageAsset", "JITDLL");
-        OfflineModeSymbol = "RESOURCE_OFFLINE";
-        AssetBundleSymbol = "RESOURCE_ASSETBUNDLE";
+
         AotDllsString = "System.Core.dll,System.dll,mscorlib.dll";
         JitDllsString = "HotUpdate.dll";
         EnableLog = true; // 重置为默认不启用日志
@@ -429,8 +414,7 @@ public class BuildToolPanel : BaseToolPanel
     public static string GetAOTDLLDir() => AotDllDir;
     public static string GetJITDllDir() => JitDllDir;
 
-    public const string OFFLINE_MODE_SYMBOL = "RESOURCE_OFFLINE"; // 保留常量用于兼容性
-    public const string ASSETBUNDLE_MODE_SYMBOL = "RESOURCE_ASSETBUNDLE"; // 保留常量用于兼容性
+
 
     public static System.Collections.Generic.List<string> GetAotDLLNames()
     {
@@ -443,10 +427,7 @@ public class BuildToolPanel : BaseToolPanel
     }
 
     // 动态获取符号
-    public static string GetOfflineModeSymbol() => OfflineModeSymbol;
-    public static string GetAssetBundleModeSymbol() => AssetBundleSymbol;
     public static bool IsEnableLog() => EnableLog;
-
     // 新增的路径访问方法
     public static string GetBuildLogsDir() => BuildLogsDir;
     public static string GetApkOutputDir() => ApkOutputDir;
