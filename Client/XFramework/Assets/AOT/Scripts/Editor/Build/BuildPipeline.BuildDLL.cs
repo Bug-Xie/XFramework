@@ -36,14 +36,14 @@ using System.Collections.Generic;
             {
                 sourceDir = HybridCLR.Editor.SettingsUtil.GetAssembliesPostIl2CppStripDir(
                     EditorUserBuildSettings.activeBuildTarget);
-                targetDir = BuildToolPanel.GetAOTDLLDir();
+                targetDir = BuildToolPanel.AotDllDir;
                 dllList = BuildToolPanel.GetAotDLLNames();
             }
             else
             {
                 sourceDir = HybridCLR.Editor.SettingsUtil.GetHotUpdateDllsOutputDirByTarget(
                     EditorUserBuildSettings.activeBuildTarget);
-                targetDir = BuildToolPanel.GetJITDllDir();
+                targetDir = BuildToolPanel.JitDllDir;
                 dllList = BuildToolPanel.GetJITDLLNames();
             }
 

@@ -1,9 +1,11 @@
-using UnityEngine;
+using System;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine.SceneManagement;
 using System.IO;
+using System.Linq;
 using YooAsset.Editor;
+using Object = UnityEngine.Object;
 
 
 public partial class BuildPipelineEditor
@@ -18,28 +20,58 @@ public partial class BuildPipelineEditor
         {
             Log.Info("开始构建环境准备...");
 
-            // 清理AOT DLL目录
-            string aotDllDir = BuildToolPanel.GetAOTDLLDir();
-            if (Directory.Exists(aotDllDir))
-            {
-                Directory.Delete(aotDllDir, true);
-                Log.Info($"已清理AOT DLL目录: {aotDllDir}");
-            }
+            // 清空AOT DLL目录内容（保留目录）
+            string aotDllDir = BuildToolPanel.AotDllDir;
+            ClearDirectoryContents(aotDllDir, "AOT DLL");
 
-            // 清理JIT DLL目录
-            string jitDllDir = BuildToolPanel.GetJITDllDir();
-            if (Directory.Exists(jitDllDir))
-            {
-                Directory.Delete(jitDllDir, true);
-                Log.Info($"已清理JIT DLL目录: {jitDllDir}");
-            }
+            // 清空JIT DLL目录内容（保留目录）
+            string jitDllDir = BuildToolPanel.JitDllDir;
+            ClearDirectoryContents(jitDllDir, "JIT DLL");
 
-            // 清理内置资源目录（StreamingAssets/DefaultPackage）
+            // 清空内置资源目录内容（保留目录）
             string streamingAssetsDir = AssetBundleBuilderHelper.GetStreamingAssetsRoot();
-            if (Directory.Exists(streamingAssetsDir))
+            ClearDirectoryContents(streamingAssetsDir, "StreamingAssets资源");
+        }
+
+        /// <summary>
+        /// 清空目录内容但保留目录结构
+        /// </summary>
+        /// <param name="directoryPath">要清空的目录路径</param>
+        /// <param name="dirName">目录名称（用于日志显示）</param>
+        private static void ClearDirectoryContents(string directoryPath, string dirName)
+        {
+            if (!Directory.Exists(directoryPath))
             {
-                Directory.Delete(streamingAssetsDir, true);
-                Log.Info($"已清理StreamingAssets资源目录: {streamingAssetsDir}");
+                Log.Info($"{dirName}目录不存在，跳过清理: {directoryPath}");
+                return;
+            }
+
+            try
+            {
+                // 清空所有文件
+                var files = Directory.GetFiles(directoryPath, "*", SearchOption.AllDirectories);
+                foreach (var file in files)
+                {
+                    File.SetAttributes(file, FileAttributes.Normal); // 确保文件可删除
+                    File.Delete(file);
+                }
+
+                // 清空所有子目录
+                var directories = Directory.GetDirectories(directoryPath, "*", SearchOption.AllDirectories)
+                    .OrderByDescending(d => d.Length); // 从最深层开始删除
+                foreach (var dir in directories)
+                {
+                    if (Directory.Exists(dir))
+                    {
+                        Directory.Delete(dir, false); // 只删除空目录
+                    }
+                }
+
+                Log.Info($"已清空{dirName}目录内容: {directoryPath}");
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"清空{dirName}目录失败: {ex.Message}");
             }
         }
 

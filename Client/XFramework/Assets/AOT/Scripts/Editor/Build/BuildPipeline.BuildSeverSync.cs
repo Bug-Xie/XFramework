@@ -11,7 +11,7 @@ public partial class BuildPipelineEditor
     // 完整的服务器资源目录路径
     private static string ServerResDir => GetPlatformURL(SERVER_RES_ROOT);
     // Bundles 源目录路径
-    private static string BundlesDir => Path.Combine(BuildToolPanel.GetProjectRoot(), "Bundles", GetPlatformName(), "DefaultPackage",PlayerSettings.bundleVersion);
+    private static string BundlesDir => Path.Combine(BuildToolPanel.ProjectRoot, "Bundles", GetPlatformName(), "DefaultPackage",PlayerSettings.bundleVersion);
     
     /// <summary>
     /// 增量同步：只同步资源

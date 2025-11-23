@@ -19,12 +19,9 @@ public class BuildToolPanel : BaseToolPanel
     private bool _showOfflineBuilds = true;
     private bool _showHotfixBuilds = true;
 
-    // 构建统计
-    private BuildStatistics _buildStats = new BuildStatistics();
-
     // 构建配置 - 直接存储在类中
 // 获取项目根目录
-    private static string ProjectRoot = Directory.GetParent(Application.dataPath).FullName;
+    public static string ProjectRoot = Directory.GetParent(Application.dataPath).FullName;
 
 // 构建配置
     public static string AotDllDir;
@@ -77,8 +74,7 @@ public class BuildToolPanel : BaseToolPanel
         try
         {
             GUILayout.Label($"当前平台：{EditorUserBuildSettings.activeBuildTarget}", EditorStyles.miniLabel);
-            GUILayout.Label($"构建模式：{(EditorUserBuildSettings.development ? "开发模式" : "发布模式")}", EditorStyles.miniLabel);
-            GUILayout.Label($"最后构建：{_buildStats.LastBuildTime}", EditorStyles.miniLabel);
+            GUILayout.Label($"构建模式：{(EnableLog ? "开发模式" : "发布模式")}", EditorStyles.miniLabel);
         }
         catch (System.Exception e)
         {
@@ -130,7 +126,7 @@ public class BuildToolPanel : BaseToolPanel
 
         // 编译符号设置
         GUILayout.Label("🔧 编译符号", EditorStyles.boldLabel);
-        EditorGUILayout.BeginHorizontal();
+  
         
         GUILayout.Space(5);
         EditorGUILayout.BeginHorizontal();
@@ -242,7 +238,6 @@ public class BuildToolPanel : BaseToolPanel
                 EditorApplication.delayCall += () =>
                 {
                     BuildPipelineEditor.BuildOfflineAPK();
-                    _buildStats.RecordBuild("离线全量包");
                 };
             }, null, true, 35)
         );
@@ -261,7 +256,6 @@ public class BuildToolPanel : BaseToolPanel
                 EditorApplication.delayCall += () =>
                 {
                     BuildPipelineEditor.BuildFullPackageAPK();
-                    _buildStats.RecordBuild("热更全量包");
                 };
             }, null, true, 35),
             new ButtonInfo("🗃️ 构建空包APK(热更)", () =>
@@ -269,7 +263,6 @@ public class BuildToolPanel : BaseToolPanel
                 EditorApplication.delayCall += () =>
                 {
                     BuildPipelineEditor.BuildNulllPackageAPK();
-                    _buildStats.RecordBuild("热更空包");
                 };
             }, null, true, 35)
         );
@@ -284,7 +277,6 @@ public class BuildToolPanel : BaseToolPanel
                 EditorApplication.delayCall += () =>
                 {
                     BuildPipelineEditor.BuildIncrementalPackageNoAPK();
-                    _buildStats.RecordBuild("增量包");
                 };
             }, null, true, 35)
         );
@@ -359,7 +351,7 @@ public class BuildToolPanel : BaseToolPanel
 
     private void OpenBuildLogsDirectory()
     {
-        string logsPath = BuildToolPanel.GetBuildLogsDir();
+        string logsPath =BuildLogsDir;
         if (System.IO.Directory.Exists(logsPath))
         {
             OpenDirectoryDirectly(logsPath);
@@ -405,17 +397,7 @@ public class BuildToolPanel : BaseToolPanel
         BuildLogsDir = Path.Combine(ProjectRoot, "SaveAsset", "Out", "BuildEditor");
         ApkOutputDir = Path.Combine(ProjectRoot, "SaveAsset", "Out", "BuildPlayer");
     }
-
-    #endregion
-
-    #region BuildHelper兼容方法
-
-    // 兼容原有API，直接在BuildToolPanel中提供
-    public static string GetAOTDLLDir() => AotDllDir;
-    public static string GetJITDllDir() => JitDllDir;
-
-
-
+    
     public static System.Collections.Generic.List<string> GetAotDLLNames()
     {
         return AotDllsString.Split(',').Where(s => !string.IsNullOrEmpty(s.Trim())).Select(s => s.Trim()).ToList();
@@ -426,27 +408,5 @@ public class BuildToolPanel : BaseToolPanel
         return JitDllsString.Split(',').Where(s => !string.IsNullOrEmpty(s.Trim())).Select(s => s.Trim()).ToList();
     }
 
-    // 动态获取符号
-    public static bool IsEnableLog() => EnableLog;
-    // 新增的路径访问方法
-    public static string GetBuildLogsDir() => BuildLogsDir;
-    public static string GetApkOutputDir() => ApkOutputDir;
-    public static string GetProjectRoot() => ProjectRoot;
-
     #endregion
-
-    /// <summary>
-    /// 构建统计信息
-    /// </summary>
-    private class BuildStatistics
-    {
-        public string LastBuildTime { get; private set; } = "暂无记录";
-        public int TotalBuilds { get; private set; } = 0;
-
-        public void RecordBuild(string buildType)
-        {
-            LastBuildTime = $"{System.DateTime.Now:MM-dd HH:mm} ({buildType})";
-            TotalBuilds++;
-        }
-    }
 }

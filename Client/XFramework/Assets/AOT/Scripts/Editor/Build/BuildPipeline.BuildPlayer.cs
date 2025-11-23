@@ -26,7 +26,7 @@ using System.IO;
             // 生成APK名称
             string buildType = apkName;
             // 使用可配置的输出目录
-            string outputDir = BuildToolPanel.GetApkOutputDir();
+            string outputDir = BuildToolPanel.ApkOutputDir;
             if (!Directory.Exists(outputDir))
             {
                 Directory.CreateDirectory(outputDir);

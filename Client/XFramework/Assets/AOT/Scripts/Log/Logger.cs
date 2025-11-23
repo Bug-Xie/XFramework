@@ -4,7 +4,6 @@ using System.Diagnostics;
 using UnityEngine;
 
 
-
 /// <summary>
 /// 日志级别定义
 /// </summary>
@@ -118,12 +117,9 @@ public static class Logger
             LogConfig.Validate();
 
             // 添加默认处理器（根据编译平台自动选择）
-#if UNITY_EDITOR
+            UnityEngine.Debug.unityLogger.logEnabled = true;
             _handlers.Add(new UnityLogHandler());
-#else
-            _handlers.Add(new ConsoleLogHandler());
-#endif
-
+            
             if (LogConfig.SaveToFile)
                 _handlers.Add(new FileLogHandler());
 
@@ -131,7 +127,6 @@ public static class Logger
         }
     }
 
- 
 
     /// <summary>
     /// 添加自定义日志处理器
@@ -174,12 +169,14 @@ public static class Logger
             {
                 (handler as IDisposable)?.Dispose();
             }
+
             _handlers.Clear();
             _initialized = false;
         }
     }
 
     #region Info Logging
+
     [Conditional("EnableLog")]
     public static void Info(object message)
     {

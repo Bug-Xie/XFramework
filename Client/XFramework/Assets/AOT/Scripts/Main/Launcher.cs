@@ -8,6 +8,7 @@ public class Launcher : MonoBehaviour
 
     void Awake()
     {
+        Debug.unityLogger.logEnabled = false;
         Log.Info("Launcher初始化开始");
         Application.targetFrameRate = 60;
         Application.runInBackground = true;
