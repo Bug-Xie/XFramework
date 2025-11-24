@@ -13,7 +13,8 @@
       "Bash(del \"C:\\MyPart\\Work\\UnityHub\\XFramework\\Client\\XFramework\\SaveAsset\\In\\BuildEditor\\SeverSyncRes.sh\")",
       "Bash(dir \"C:\\MyPart\\Work\\UnityHub\\XFramework\\Client\\XFramework\\SaveAsset\\Out\\Logger\" /A)",
       "Bash(del \"C:\\MyPart\\Work\\UnityHub\\XFramework\\Client\\XFramework\\Assets\\AOT\\Scripts\\Editor\\GameToolLogger.cs\")",
-      "Bash(del \"C:\\MyPart\\Work\\UnityHub\\XFramework\\Client\\XFramework\\Assets\\AOT\\Scripts\\Editor\\GameToolLogger.cs.meta\")"
+      "Bash(del \"C:\\MyPart\\Work\\UnityHub\\XFramework\\Client\\XFramework\\Assets\\AOT\\Scripts\\Editor\\GameToolLogger.cs.meta\")",
+      "Bash(dir \"C:\\MyPart\\Work\\UnityHub\\XFramework\\Client\\XFramework\\Assets\\AOT\" /B /AD)"
     ],
     "deny": [],
     "ask": []

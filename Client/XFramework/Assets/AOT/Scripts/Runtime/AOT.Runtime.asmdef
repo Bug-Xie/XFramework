@@ -1,9 +1,10 @@
 {
-    "name": "HotUpdate",
+    "name": "AOT.Runtime",
     "rootNamespace": "",
     "references": [
         "GUID:e34a5702dd353724aa315fb8011f08c3",
         "GUID:f51ebe6a0ceec4240a699833d6309b23",
+        "GUID:13ba8ce62aa80c74598530029cb2d649",
         "GUID:c50becf02a5b0804893c662cd4fad14b"
     ],
     "includePlatforms": [],

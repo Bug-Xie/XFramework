@@ -22,7 +22,7 @@ public class GameMain
         Transform go = cube.transform;
         go.localScale = new Vector3(1, 1, 1);
         //Debug.Log("Cube缩放设置完成");
-        
+    
     }
 }
 
