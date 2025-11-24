@@ -394,7 +394,7 @@ public class BuildToolPanel : BaseToolPanel
         JitDllsString = "HotUpdate.dll";
         EnableLog = true; // 重置为默认不启用日志
 
-        BuildLogsDir = Path.Combine(ProjectRoot, "SaveAsset", "Out", "BuildEditor");
+        BuildLogsDir = Path.Combine(ProjectRoot, "SaveAsset", "Out", "Logger");
         ApkOutputDir = Path.Combine(ProjectRoot, "SaveAsset", "Out", "BuildPlayer");
     }
     

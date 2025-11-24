@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Linq;
 using UnityEngine;
 using UnityEditor;
 
@@ -89,11 +90,19 @@ public partial class BuildPipelineEditor
             Directory.CreateDirectory(targetDir);
         }
 
-        // 复制所有文件
+        // 复制所有文件（使用文件过滤规则）
         foreach (FileInfo file in dir.GetFiles())
         {
-            string targetFilePath = Path.Combine(targetDir, file.Name);
-            file.CopyTo(targetFilePath, overwrite);
+            if (ShouldUploadFile(file.Name))
+            {
+                string targetFilePath = Path.Combine(targetDir, file.Name);
+                file.CopyTo(targetFilePath, overwrite);
+                Log.Info($"已上传: {file.Name}");
+            }
+            else
+            {
+                Log.Info($"跳过文件: {file.Name}");
+            }
         }
 
         // 递归复制子目录
@@ -102,6 +111,62 @@ public partial class BuildPipelineEditor
             string newTargetDir = Path.Combine(targetDir, subDir.Name);
             CopyDirectory(subDir.FullName, newTargetDir, overwrite);
         }
+    }
+
+    /// <summary>
+    /// 判断文件是否应该上传
+    /// </summary>
+    private static bool ShouldUploadFile(string fileName)
+    {
+        // 需要上传的文件规则
+        var uploadPatterns = new[]
+        {
+            "*.version",          // 本地版本文件
+            "*.bundle",           // AssetBundle 文件
+            "*_*.bytes",          // 清单文件
+            "*_*.hash",           // 哈希文件
+            "*_*.json"            // JSON 清单文件
+        };
+
+        // 不需要上传的文件规则
+        var ignorePatterns = new[]
+        {
+            "*.report",           // 构建报告
+            "buildlog*.json",     // 构建日志
+            "link.xml",           // 构建配置
+        };
+
+        // 先检查是否在忽略列表中
+        if (ignorePatterns.Any(pattern => MatchPattern(fileName, pattern)))
+        {
+            return false;
+        }
+
+        // 再检查是否在上传列表中
+        if (uploadPatterns.Any(pattern => MatchPattern(fileName, pattern)))
+        {
+            return true;
+        }
+
+        // 默认不上传未匹配的文件
+        return false;
+    }
+
+    /// <summary>
+    /// 简单的通配符匹配
+    /// </summary>
+    private static bool MatchPattern(string fileName, string pattern)
+    {
+        // 将通配符模式转换为正则表达式
+        string regexPattern = "^" + System.Text.RegularExpressions.Regex.Escape(pattern)
+            .Replace("\\*", ".*")
+            .Replace("\\?", ".") + "$";
+
+        return System.Text.RegularExpressions.Regex.IsMatch(
+            fileName,
+            regexPattern,
+            System.Text.RegularExpressions.RegexOptions.IgnoreCase
+        );
     }
     
     /// <summary>

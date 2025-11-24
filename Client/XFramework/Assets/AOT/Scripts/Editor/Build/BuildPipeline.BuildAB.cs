@@ -86,12 +86,52 @@ public partial class BuildPipelineEditor
                         Log.Info($"- {file.Replace(Application.dataPath, "Assets")}");
                     }
                 }
+                // 复制 link.xml 到 AOT/Settings/YooAsset 目录
+                CopyLinkXmlToYooAsset($"{GetPlatformURL(buildParams.BuildOutputRoot)}/{buildParams.PackageName}/{buildParams.PackageVersion}");
             }
         }
         else
         {
             Log.Error($"❌ {buildName}构建失败，请检查错误日志");
             throw new Exception($"{buildName} 构建失败，已中断后续流程！");
+        }
+    }
+
+    /// <summary>
+    /// 复制 link.xml 文件到 AOT/Settings/YooAsset 目录
+    /// </summary>
+    private static void CopyLinkXmlToYooAsset(string sourceDir)
+    {
+        string sourceLinkXml = Path.Combine(sourceDir, "link.xml");
+
+        if (!File.Exists(sourceLinkXml))
+        {
+            Log.Warn($"未找到 link.xml 文件: {sourceLinkXml}");
+            return;
+        }
+
+        string targetFolder = Path.Combine(Application.dataPath, "AOT", "Settings", "YooAsset");
+        string targetLinkXml = Path.Combine(targetFolder, "link.xml");
+
+        try
+        {
+            // 确保目标目录存在
+            if (!Directory.Exists(targetFolder))
+            {
+                Directory.CreateDirectory(targetFolder);
+                Log.Info($"创建目录: {targetFolder}");
+            }
+
+            // 复制文件（如果存在则覆盖）
+            File.Copy(sourceLinkXml, targetLinkXml, true);
+            Log.Info($"✅ 已复制 link.xml 到: {targetLinkXml.Replace(Application.dataPath, "Assets")}");
+
+            // 刷新资源数据库
+            AssetDatabase.Refresh();
+        }
+        catch (Exception ex)
+        {
+            Log.Error($"❌ 复制 link.xml 失败: {ex.Message}");
         }
     }
 }
